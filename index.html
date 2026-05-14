@@ -1,1226 +1,1353 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Remote Work — AR Quiz</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI/UX — Plateforme de Révision</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --void: #010408;
-  --deep: #040c18;
-  --panel: rgba(6,20,44,0.72);
-  --panel-bright: rgba(8,28,62,0.85);
-  --cyan: #00f5ff;
-  --cyan-dim: rgba(0,245,255,0.15);
-  --cyan-glow: rgba(0,245,255,0.4);
-  --teal: #00e5c8;
-  --purple: #b060ff;
-  --purple-dim: rgba(176,96,255,0.15);
-  --gold: #ffd060;
-  --green: #00ff88;
-  --red: #ff4060;
-  --white90: rgba(255,255,255,0.92);
-  --white50: rgba(255,255,255,0.5);
-  --white20: rgba(255,255,255,0.2);
-  --white08: rgba(255,255,255,0.08);
-  --border-c: rgba(0,245,255,0.25);
-  --border-p: rgba(176,96,255,0.25);
+  --bg: #0d0f14;
+  --panel: #141821;
+  --border: #232838;
+  --primary: #3b82f6;
+  --secondary: #60a5fa;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --text: #f3f4f6;
+  --muted: #9ca3af;
+  --font: 'Sora', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;min-height:100vh}
+#scroll-bar{position:fixed;top:0;left:0;height:2px;background:var(--primary);z-index:9999;transition:width .1s}
+nav{position:sticky;top:0;z-index:100;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0;padding:0 16px;height:52px;overflow-x:auto}
+nav .logo{font-weight:700;font-size:13px;color:var(--primary);white-space:nowrap;margin-right:24px;letter-spacing:.5px}
+.tab-btn{background:none;border:none;color:var(--muted);font-family:var(--font);font-size:12.5px;font-weight:500;padding:0 14px;height:52px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--primary);border-bottom-color:var(--primary)}
+.search-wrap{margin-left:auto;position:relative}
+.search-wrap input{background:#0d0f14;border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:12px;padding:6px 12px 6px 30px;border-radius:6px;width:200px;outline:none;transition:border-color .2s}
+.search-wrap input:focus{border-color:var(--primary)}
+.search-wrap::before{content:"⌕";position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+#search-results{position:absolute;top:36px;right:0;width:340px;background:var(--panel);border:1px solid var(--border);border-radius:8px;max-height:320px;overflow-y:auto;z-index:200;display:none}
+.sr-item{padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);font-size:12px}
+.sr-item:hover{background:#1a2035}
+.sr-item .sr-tag{font-size:10px;color:var(--primary);margin-bottom:2px}
+.sr-item .sr-q{color:var(--text)}
+.sr-item mark{background:#3b82f633;color:var(--secondary);border-radius:2px}
+
+.tab{display:none;padding:24px 20px;max-width:1100px;margin:0 auto}
+.tab.active{display:block}
+
+/* DASHBOARD */
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:28px}
+.dash-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+.dash-card .dval{font-size:28px;font-weight:700;color:var(--primary)}
+.dash-card .dlbl{font-size:11px;color:var(--muted);margin-top:4px}
+.progress-bar{background:var(--border);border-radius:4px;height:6px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--primary);border-radius:4px;transition:width .5s}
+
+/* QCM */
+.quiz-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:6px;padding:8px 16px;font-family:var(--font);font-size:12.5px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.btn.outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn.outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn.danger{background:var(--danger)}
+.btn.success{background:var(--success)}
+.btn.warning{background:var(--warning);color:#000}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+
+.qcard{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px}
+.qcard .qmeta{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:4px;letter-spacing:.4px}
+.tag.ch{background:#1e2d4a;color:#93c5fd}
+.tag.easy{background:#166534;color:#bbf7d0}
+.tag.med{background:#92400e;color:#fde68a}
+.tag.hard{background:#991b1b;color:#fecaca}
+.qtxt{font-size:14px;font-weight:500;margin-bottom:16px;line-height:1.5}
+.qoptions{display:flex;flex-direction:column;gap:8px}
+.qopt{background:#0d0f14;border:1px solid var(--border);border-radius:6px;padding:10px 14px;cursor:pointer;transition:border-color .15s,background .15s;font-size:13px;text-align:left;color:var(--text);font-family:var(--font)}
+.qopt:hover:not(.disabled){border-color:var(--primary);background:#141821}
+.qopt.selected{border-color:var(--primary);background:#1a2a4a}
+.qopt.correct{border-color:var(--success);background:#0f2a1a}
+.qopt.wrong{border-color:var(--danger);background:#2a0f0f}
+.qopt.disabled{cursor:default}
+.explanation{margin-top:14px;padding:12px 14px;background:#0a1520;border-left:3px solid var(--primary);border-radius:0 6px 6px 0;font-size:12.5px;color:var(--muted);display:none}
+.explanation.show{display:block}
+.trap-note{margin-top:8px;padding:8px 12px;background:#1a0f0a;border-left:3px solid var(--warning);border-radius:0 6px 6px 0;font-size:12px;color:var(--warning)}
+.qnav{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.qnum{width:32px;height:32px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;transition:.15s}
+.qnum.answered{background:#1a2a4a;border-color:var(--primary);color:var(--primary)}
+.qnum.wrong-ans{background:#2a0f0f;border-color:var(--danger);color:var(--danger)}
+.qnum.bookmarked{border-color:var(--warning)}
+.qnum.current{border-color:var(--secondary);color:var(--secondary)}
+
+.results-wrap{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:28px}
+.score-big{font-size:64px;font-weight:700;color:var(--primary);text-align:center}
+.score-label{text-align:center;color:var(--muted);font-size:13px;margin-bottom:24px}
+.per-chapter{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.ch-score{background:#0d0f14;border:1px solid var(--border);border-radius:8px;padding:12px 16px}
+.ch-score .chn{font-size:12px;font-weight:600;margin-bottom:6px}
+.ch-score .chv{font-size:20px;font-weight:700;color:var(--secondary)}
+
+/* EXERCISES */
+.excard{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:22px;margin-bottom:18px}
+.excard h3{font-size:14px;font-weight:600;margin-bottom:10px}
+.excard .context{font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+.excard .task{padding:12px;background:#0a1520;border-left:3px solid var(--secondary);border-radius:0 6px 6px 0;font-size:13px;margin-bottom:14px}
+.excard textarea{width:100%;background:#0d0f14;border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:12px;padding:12px;resize:vertical;min-height:80px;outline:none;transition:border-color .2s}
+.excard textarea:focus{border-color:var(--primary)}
+.solution{margin-top:14px;display:none}
+.solution.show{display:block}
+.solution-block{background:#060a0f;border:1px solid var(--border);border-radius:8px;padding:16px;font-size:12px;font-family:var(--mono);white-space:pre-wrap;line-height:1.7}
+.hint-box{background:#1a1a0a;border:1px solid #3a3010;border-radius:6px;padding:10px 14px;font-size:12px;color:var(--warning);margin-top:10px;display:none}
+.hint-box.show{display:block}
+.piege{background:#1a0808;border:1px solid #3a1010;border-radius:6px;padding:10px 14px;font-size:12px;color:var(--danger);margin-top:10px}
+
+/* FLASHCARDS */
+.fc-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.fc-filter{background:var(--panel);border:1px solid var(--border);color:var(--text);font-family:var(--font);padding:6px 12px;border-radius:6px;font-size:12px;outline:none}
+.fc-wrap{perspective:1000px;margin-bottom:20px}
+.fc-inner{position:relative;width:100%;max-width:640px;margin:0 auto;height:260px;transform-style:preserve-3d;transition:transform .5s}
+.fc-inner.flipped{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:32px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;backface-visibility:hidden;cursor:pointer}
+.fc-back{transform:rotateY(180deg);background:#0f1822}
+.fc-front .flabel{font-size:10px;color:var(--primary);font-weight:600;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}
+.fc-back .blabel{font-size:10px;color:var(--success);font-weight:600;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}
+.fc-front .fq{font-size:15px;font-weight:600;line-height:1.5}
+.fc-back .fa{font-size:13px;line-height:1.6;color:var(--muted)}
+.fc-back .fa strong{color:var(--text)}
+.fc-nav{display:flex;gap:12px;justify-content:center;margin-bottom:20px;align-items:center}
+.fc-count{font-size:12px;color:var(--muted)}
+.fc-states{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.state-btn{border:none;border-radius:6px;padding:7px 18px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:.2s}
+.state-btn.review{background:#2e2010;color:var(--warning);border:1px solid #5a3a10}
+.state-btn.medium{background:#1a1e30;color:var(--secondary);border:1px solid #2a3050}
+.state-btn.mastered{background:#0f2a1a;color:var(--success);border:1px solid #1a5a30}
+.fc-prog{display:flex;gap:16px;justify-content:center;margin-bottom:20px;font-size:12px}
+.fc-prog span{color:var(--muted)}
+.fc-prog strong{color:var(--text)}
+
+/* CHEAT SHEET */
+.cs-index{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.cs-index a{font-size:11.5px;color:var(--primary);text-decoration:none;background:#1a2a4a;padding:4px 10px;border-radius:4px;transition:.2s}
+.cs-index a:hover{background:var(--primary);color:#fff}
+.cs-section{margin-bottom:28px}
+.cs-section h2{font-size:13px;font-weight:700;color:var(--primary);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase}
+.cs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.cs-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px}
+.cs-card h4{font-size:12px;font-weight:600;color:var(--secondary);margin-bottom:8px}
+.cs-card p,.cs-card li{font-size:12px;color:var(--muted);line-height:1.6}
+.cs-card ul{padding-left:16px}
+.cs-card code{font-family:var(--mono);background:#0d0f14;color:var(--warning);padding:1px 5px;border-radius:3px;font-size:11px}
+.copy-btn{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:10px;padding:2px 7px;border-radius:3px;cursor:pointer;float:right;margin-left:8px;transition:.2s}
+.copy-btn:hover{border-color:var(--primary);color:var(--primary)}
+.collapsible-hdr{cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.collapsible-hdr .arrow{transition:transform .2s;font-size:10px}
+.collapsible-hdr.open .arrow{transform:rotate(180deg)}
+.collapsible-body{overflow:hidden;transition:max-height .3s;max-height:0}
+.collapsible-body.open{max-height:2000px}
+
+/* TRAPS */
+.trap-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.trap-card .trap-hdr{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.sev{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:.5px}
+.sev.high{background:#2e0f0f;color:var(--danger)}
+.sev.med{background:#2e2010;color:var(--warning)}
+.sev.low{background:#0f1e30;color:var(--secondary)}
+.trap-card .wrong{color:var(--danger);font-size:12.5px;margin-bottom:6px}
+.trap-card .wrong::before{content:"✗  "}
+.trap-card .correct-t{color:var(--success);font-size:12.5px;margin-bottom:6px}
+.trap-card .correct-t::before{content:"✓  "}
+.trap-card .why{font-size:12px;color:var(--muted);margin-top:8px;padding:8px 12px;background:#0d0f14;border-radius:6px}
+.trap-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.tf-btn{font-size:11.5px;padding:5px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:.2s}
+.tf-btn.active{border-color:var(--primary);color:var(--primary)}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin:10px 0}
+th{background:#141821;color:var(--secondary);padding:8px 10px;text-align:left;border:1px solid var(--border);font-weight:600}
+td{padding:8px 10px;border:1px solid var(--border);color:var(--muted)}
+
+.mode-select{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.mode-btn{background:#0d0f14;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:8px 14px;font-size:12px;cursor:pointer;transition:.2s;font-family:var(--font)}
+.mode-btn.active{border-color:var(--primary);color:var(--primary);background:#1a2a4a}
+
+.timer-display{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--warning);margin-bottom:12px}
+
+.export-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;padding:14px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+
+@media print{
+  nav,.tab-btn,.quiz-controls,.qnav,.fc-controls,.export-bar,.mode-select,.trap-filter{display:none!important}
+  .tab{display:block!important;padding:0}
+  body{background:#fff;color:#000}
+  .cs-card{border:1px solid #ccc;break-inside:avoid}
+  .cs-card code{background:#f0f0f0;color:#333}
 }
 
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-html, body {
-  width:100%; height:100%;
-  background: var(--void);
-  color: var(--white90);
-  font-family: 'Rajdhani', sans-serif;
-  overflow: hidden;
-  cursor: crosshair;
-  touch-action: manipulation; /* Prevents double-tap zoom on mobile */
-}
-
-/* ═══════════ CANVAS BACKGROUND ═══════════ */
-#bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* ═══════════ DEPTH GRID ═══════════ */
-.grid-plane {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image:
-    linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
-  background-size: 60px 60px;
-  transform: perspective(800px) rotateX(55deg) translateY(30%);
-  transform-origin: bottom center;
-  animation: gridMove 8s linear infinite;
-}
-
-@keyframes gridMove {
-  from { background-position: 0 0; }
-  to   { background-position: 0 60px; }
-}
-
-/* ═══════════ HUD CORNERS ═══════════ */
-.hud-corner {
-  position: fixed;
-  width: min(60px, 10vw); height: min(60px, 10vw);
-  z-index: 10;
-  pointer-events: none;
-}
-.hud-corner::before, .hud-corner::after {
-  content: '';
-  position: absolute;
-  background: var(--cyan);
-}
-.hud-corner::before { width: 2px; height: 100%; }
-.hud-corner::after  { width: 100%; height: 2px; }
-
-.hud-tl { top:16px; left:16px; }
-.hud-tr { top:16px; right:16px; transform: scaleX(-1); }
-.hud-bl { bottom:16px; left:16px; transform: scaleY(-1); }
-.hud-br { bottom:16px; right:16px; transform: scale(-1); }
-
-/* HUD data overlays */
-.hud-data {
-  position: fixed;
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  color: rgba(0,245,255,0.5);
-  z-index: 10;
-  pointer-events: none;
-  line-height: 1.8;
-}
-.hud-data.tl { top: 82px; left: 20px; }
-.hud-data.tr { top: 82px; right: 20px; text-align: right; }
-.hud-data.bl { bottom: 82px; left: 20px; }
-
-/* Hide background data text on very small screens to avoid overlap */
-@media(max-width: 600px) {
-  .hud-data { display: none; }
-}
-
-/* Scan line */
-.scanline {
-  position: fixed;
-  left: 0; right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(0,245,255,0.6), transparent);
-  z-index: 10;
-  pointer-events: none;
-  animation: scan 4s linear infinite;
-}
-@keyframes scan {
-  from { top: -2px; opacity: 1; }
-  to   { top: 100vh; opacity: 0.3; }
-}
-
-/* ═══════════ SCREENS ═══════════ */
-.screen {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  perspective: 1200px;
-  padding: 15px;
-}
-.screen.active { display: flex; }
-
-/* ═══════════ INTRO ═══════════ */
-#intro { gap: 0; }
-
-.intro-orb {
-  width: clamp(120px, 40vw, 180px); height: clamp(120px, 40vw, 180px);
-  position: relative;
-  margin-bottom: 36px;
-  animation: orbFloat 4s ease-in-out infinite;
-}
-@keyframes orbFloat {
-  0%,100% { transform: translateY(0) rotateX(0deg); }
-  50% { transform: translateY(-16px) rotateX(8deg); }
-}
-
-.orb-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--cyan);
-  animation: ringRotate 6s linear infinite;
-  box-shadow: 0 0 20px var(--cyan-glow), inset 0 0 20px rgba(0,245,255,0.05);
-}
-.orb-ring:nth-child(2) {
-  inset: 14px;
-  border-color: var(--purple);
-  animation-duration: 4s;
-  animation-direction: reverse;
-  box-shadow: 0 0 15px rgba(176,96,255,0.4), inset 0 0 15px rgba(176,96,255,0.05);
-}
-.orb-ring:nth-child(3) {
-  inset: 28px;
-  border-color: var(--teal);
-  animation-duration: 8s;
-}
-.orb-core {
-  position: absolute;
-  inset: 42px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,245,255,0.3), rgba(176,96,255,0.2), transparent);
-  animation: corePulse 2s ease-in-out infinite;
-}
-@keyframes corePulse {
-  0%,100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
-}
-@keyframes ringRotate {
-  from { transform: rotateX(70deg) rotate(0deg); }
-  to   { transform: rotateX(70deg) rotate(360deg); }
-}
-
-.intro-eyebrow {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(9px, 3vw, 11px);
-  color: var(--cyan);
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s 0.2s forwards;
-  text-align: center;
-}
-
-.intro-title {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(2.2rem, 8vw, 3.6rem);
-  font-weight: 900;
-  text-align: center;
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s 0.4s forwards;
-  text-shadow: 0 0 40px rgba(0,245,255,0.4);
-}
-.intro-title .hl { color: var(--cyan); }
-.intro-title .hl2 { color: var(--purple); }
-
-.intro-meta {
-  display: flex;
-  gap: clamp(12px, 3vw, 32px);
-  margin: 28px 0 40px;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s 0.6s forwards;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.meta-chip {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(9px, 2.5vw, 11px);
-  color: var(--cyan);
-  border: 1px solid var(--border-c);
-  background: var(--cyan-dim);
-  padding: 6px 14px;
-  border-radius: 4px;
-  letter-spacing: 1px;
-  position: relative;
-  overflow: hidden;
-}
-.meta-chip::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0,245,255,0.15), transparent);
-  animation: chipShimmer 3s infinite;
-}
-@keyframes chipShimmer {
-  from { left: -100%; }
-  to   { left: 100%; }
-}
-
-@keyframes fadeSlideUp {
-  from { opacity:0; transform: translateY(20px); }
-  to   { opacity:1; transform: translateY(0); }
-}
-
-/* ═══════════ LAUNCH BUTTON ═══════════ */
-.btn-launch {
-  position: relative;
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  font-size: clamp(0.8rem, 3vw, 0.9rem);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--void);
-  background: var(--cyan);
-  border: none;
-  padding: 18px clamp(30px, 8vw, 52px);
-  cursor: pointer;
-  clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-  transition: all 0.2s;
-  opacity: 0;
-  animation: fadeSlideUp 0.6s 0.8s forwards;
-  box-shadow: 0 0 40px var(--cyan-glow), 0 0 80px rgba(0,245,255,0.15);
-}
-.btn-launch:hover {
-  background: white;
-  box-shadow: 0 0 60px rgba(0,245,255,0.8), 0 0 120px rgba(0,245,255,0.3);
-  transform: scale(1.04);
-}
-.btn-launch:active { transform: scale(0.98); }
-
-/* ═══════════ QUIZ SCREEN ═══════════ */
-#quiz {
-  gap: 16px;
-  padding: 10px;
-}
-
-/* Top HUD bar */
-.quiz-hud {
-  width: 100%;
-  max-width: 820px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.q-id {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(10px, 3vw, 11px);
-  color: var(--cyan);
-  letter-spacing: 2px;
-}
-
-.timer-hud {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-left: auto;
-}
-
-.timer-track {
-  width: clamp(80px, 20vw, 180px);
-  height: 4px;
-  background: rgba(0,245,255,0.1);
-  border-radius: 0;
-  position: relative;
-  overflow: visible;
-}
-.timer-fill {
-  height: 100%;
-  background: var(--cyan);
-  transition: width 1s linear, background 0.5s;
-  box-shadow: 0 0 10px var(--cyan);
-  position: relative;
-}
-.timer-fill::after {
-  content: '';
-  position: absolute;
-  right: -3px; top: 50%;
-  transform: translateY(-50%);
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: white;
-  box-shadow: 0 0 8px var(--cyan);
-}
-
-.timer-num {
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  font-size: clamp(0.9rem, 3vw, 1rem);
-  color: var(--cyan);
-  min-width: 28px;
-  text-align: right;
-  transition: color 0.3s;
-  text-shadow: 0 0 12px currentColor;
-}
-
-/* Progress nodes */
-.progress-nodes {
-  display: flex;
-  gap: clamp(4px, 1.5vw, 8px);
-  align-items: center;
-}
-.pnode {
-  width: clamp(14px, 3vw, 24px); 
-  height: 4px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.4s;
-  position: relative;
-}
-.pnode.cur {
-  background: var(--cyan);
-  border-color: var(--cyan);
-  box-shadow: 0 0 8px var(--cyan-glow);
-  transform: scaleY(2.5);
-}
-.pnode.ok {
-  background: var(--green);
-  border-color: var(--green);
-}
-.pnode.no {
-  background: var(--red);
-  border-color: var(--red);
-}
-.pnode.skip {
-  background: var(--gold);
-  border-color: var(--gold);
-}
-
-/* ═══════════ HOLOGRAPHIC PANEL ═══════════ */
-.holo-panel {
-  width: 100%;
-  max-width: 820px;
-  max-height: 75vh; /* Prevents overflow on mobile */
-  overflow-y: auto; /* Allows scrolling */
-  overflow-x: hidden;
-  background: var(--panel);
-  border: 1px solid var(--border-c);
-  border-radius: 4px;
-  padding: clamp(20px, 5vw, 36px) clamp(16px, 5vw, 40px);
-  position: relative;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow:
-    0 0 0 1px rgba(0,245,255,0.05),
-    0 20px 60px rgba(0,0,0,0.6),
-    inset 0 1px 0 rgba(0,245,255,0.2),
-    inset 0 -1px 0 rgba(176,96,255,0.1);
-  transform-style: preserve-3d;
-  animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
-}
-
-/* Custom Cyberpunk Scrollbar */
-.holo-panel::-webkit-scrollbar { width: 6px; }
-.holo-panel::-webkit-scrollbar-track { background: rgba(0,245,255,0.05); }
-.holo-panel::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 10px; }
-.holo-panel::-webkit-scrollbar-thumb:hover { background: white; }
-
-@keyframes panelIn {
-  from { opacity:0; transform: perspective(1000px) rotateX(-8deg) translateY(30px) scale(0.97); }
-  to   { opacity:1; transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1); }
-}
-
-/* Refraction edge */
-.holo-panel::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), var(--teal), transparent);
-  opacity: 0.8;
-}
-
-/* Interior glow */
-.holo-panel::after {
-  content: '';
-  position: absolute;
-  top: -40%; left: -20%;
-  width: 60%; height: 80%;
-  background: radial-gradient(ellipse, rgba(0,245,255,0.04) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-/* Corner notches */
-.panel-notch {
-  position: absolute;
-  width: 14px; height: 14px;
-  border-color: var(--cyan);
-  border-style: solid;
-  opacity: 0.7;
-  z-index: 2; /* Keeps them above scrollable content */
-}
-.panel-notch.tl { top:0; left:0; border-width:2px 0 0 2px; }
-.panel-notch.tr { top:0; right:0; border-width:2px 2px 0 0; }
-.panel-notch.bl { bottom:0; left:0; border-width:0 0 2px 2px; }
-.panel-notch.br { bottom:0; right:0; border-width:0 2px 2px 0; }
-
-.q-section-tag {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 2.5px;
-  color: var(--purple);
-  text-transform: uppercase;
-  margin-bottom: 18px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.q-section-tag::before {
-  content: '';
-  width: 20px; height: 1px;
-  background: var(--purple);
-  display: inline-block;
-}
-
-.q-text {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(1rem, 4vw, 1.2rem);
-  font-weight: 600;
-  line-height: 1.4;
-  margin-bottom: 24px;
-  color: var(--white90);
-  letter-spacing: 0.01em;
-}
-
-/* ═══════════ OPTIONS ═══════════ */
-.opts-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-@media(max-width:650px) {
-  .opts-grid { grid-template-columns: 1fr; }
-}
-
-.opt-btn {
-  position: relative;
-  background: rgba(0,245,255,0.03);
-  border: 1px solid rgba(0,245,255,0.18);
-  color: var(--white90);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: clamp(0.95rem, 3.5vw, 1rem);
-  font-weight: 500;
-  text-align: left;
-  padding: 14px 16px 14px 44px;
-  cursor: pointer;
-  transition: all 0.2s;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  line-height: 1.4;
-  overflow: hidden;
-}
-
-.opt-btn::before {
-  content: attr(data-lbl);
-  position: absolute;
-  left: 14px; top: 50%;
-  transform: translateY(-50%);
-  font-family: 'Orbitron', monospace;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--cyan);
-  letter-spacing: 1px;
-}
-
-.opt-btn::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(0,245,255,0) 0%, rgba(0,245,255,0.06) 100%);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.opt-btn:hover:not(:disabled) {
-  border-color: var(--cyan);
-  background: rgba(0,245,255,0.08);
-  box-shadow: 0 0 20px rgba(0,245,255,0.12), inset 0 0 20px rgba(0,245,255,0.04);
-  transform: translateX(4px);
-}
-.opt-btn:hover:not(:disabled)::after { opacity: 1; }
-
-.opt-btn:disabled { cursor: default; }
-
-.opt-btn.correct {
-  border-color: var(--green);
-  background: rgba(0,255,136,0.08);
-  color: var(--green);
-  box-shadow: 0 0 20px rgba(0,255,136,0.2);
-  animation: correctPulse 0.5s ease;
-}
-.opt-btn.correct::before { color: var(--green); }
-
-.opt-btn.wrong {
-  border-color: var(--red);
-  background: rgba(255,64,96,0.08);
-  color: var(--red);
-  box-shadow: 0 0 15px rgba(255,64,96,0.15);
-  animation: wrongShake 0.4s ease;
-}
-.opt-btn.wrong::before { color: var(--red); }
-
-@keyframes correctPulse {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-}
-@keyframes wrongShake {
-  0%,100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
-}
-
-/* ═══════════ EXPLANATION & NEXT ROW ═══════════ */
-.explanation {
-  margin-top: 20px;
-  padding: 16px 20px;
-  border-left: 2px solid var(--purple);
-  background: var(--purple-dim);
-  font-family: 'Rajdhani', sans-serif;
-  font-size: clamp(0.85rem, 3.5vw, 0.95rem);
-  font-weight: 400;
-  color: rgba(255,255,255,0.75);
-  line-height: 1.65;
-  animation: fadeSlideUp 0.3s ease;
-  position: relative;
-}
-.explanation strong { color: var(--white90); font-weight: 600; }
-.explanation .expl-label {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--purple);
-  display: block;
-  margin-bottom: 8px;
-}
-
-/* Sticky Next Button so it never gets lost off-screen */
-.next-row {
-  position: sticky;
-  bottom: 0px; 
-  margin-top: 24px;
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 0;
-  background: linear-gradient(to bottom, transparent 0%, var(--panel) 40%, var(--panel) 100%);
-  z-index: 10;
-}
-
-.btn-next {
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  font-size: clamp(0.7rem, 2.5vw, 0.75rem);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--void);
-  background: var(--cyan);
-  border: none;
-  padding: 14px clamp(20px, 5vw, 36px);
-  cursor: pointer;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  transition: all 0.2s;
-  box-shadow: 0 0 24px var(--cyan-glow);
-}
-.btn-next:hover {
-  background: white;
-  box-shadow: 0 0 40px rgba(0,245,255,0.7);
-  transform: scale(1.04);
-}
-
-/* ═══════════ RESULTS ═══════════ */
-#results { gap: clamp(16px, 4vw, 28px); text-align: center; }
-
-.results-header {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(9px, 2.5vw, 11px);
-  letter-spacing: 4px;
-  color: var(--cyan);
-  text-transform: uppercase;
-}
-
-/* Holographic score ring */
-.score-holo {
-  position: relative;
-  width: clamp(140px, 40vw, 200px); 
-  height: clamp(140px, 40vw, 200px);
-  margin: 0 auto;
-}
-.score-holo svg { 
-  width: 100%; height: 100%; 
-  transform: rotate(-90deg); 
-  filter: drop-shadow(0 0 12px var(--cyan)); 
-}
-.score-holo-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.score-big {
-  font-family: 'Orbitron', monospace;
-  font-weight: 900;
-  font-size: clamp(2rem, 8vw, 2.8rem);
-  color: var(--white90);
-  text-shadow: 0 0 20px var(--cyan-glow);
-  line-height: 1;
-}
-.score-out {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(9px, 2.5vw, 11px);
-  color: var(--cyan);
-  letter-spacing: 2px;
-  margin-top: 6px;
-}
-
-.verdict-title {
-  font-family: 'Orbitron', monospace;
-  font-weight: 700;
-  font-size: clamp(1.2rem, 4vw, 1.8rem);
-  letter-spacing: 0.05em;
-  text-shadow: 0 0 30px var(--cyan-glow);
-  margin-bottom: 8px;
-}
-
-.verdict-body {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: clamp(0.9rem, 3.5vw, 1rem);
-  font-weight: 400;
-  color: var(--white50);
-  max-width: 420px;
-  line-height: 1.7;
-  margin: 0 auto;
-}
-
-.stats-row {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.stat-box {
-  background: var(--panel);
-  border: 1px solid var(--border-c);
-  padding: 14px 18px;
-  min-width: clamp(80px, 25vw, 100px);
-  text-align: center;
-  position: relative;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  backdrop-filter: blur(12px);
-}
-.stat-box::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-}
-
-.stat-val {
-  font-family: 'Orbitron', monospace;
-  font-weight: 900;
-  font-size: clamp(1.4rem, 5vw, 2rem);
-  line-height: 1;
-}
-.stat-val.g { color: var(--green); text-shadow: 0 0 16px rgba(0,255,136,0.5); }
-.stat-val.r { color: var(--red);   text-shadow: 0 0 16px rgba(255,64,96,0.5); }
-.stat-val.y { color: var(--gold);  text-shadow: 0 0 16px rgba(255,208,96,0.5); }
-
-.stat-lbl {
-  font-family: 'Share Tech Mono', monospace;
-  font-size: clamp(8px, 2vw, 9px);
-  letter-spacing: 2px;
-  color: var(--white50);
-  margin-top: 8px;
-  text-transform: uppercase;
-}
-
-.btn-restart {
-  font-family: 'Orbitron', monospace;
-  font-weight: 600;
-  font-size: clamp(0.7rem, 2.5vw, 0.75rem);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--cyan);
-  background: transparent;
-  border: 1px solid var(--border-c);
-  padding: 14px clamp(20px, 6vw, 36px);
-  cursor: pointer;
-  transition: all 0.2s;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-  margin-top: 10px;
-}
-.btn-restart:hover {
-  border-color: var(--cyan);
-  background: var(--cyan-dim);
-  box-shadow: 0 0 24px rgba(0,245,255,0.2);
-}
-
-/* Ripple */
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(0,245,255,0.3);
-  transform: scale(0);
-  animation: rippleAnim 0.6s linear;
-  pointer-events: none;
-  z-index: 99;
-}
-@keyframes rippleAnim {
-  to { transform: scale(4); opacity: 0; }
-}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#3a4060}
 </style>
 </head>
 <body>
-
-<canvas id="bg-canvas"></canvas>
-
-<div class="grid-plane"></div>
-
-<div class="scanline"></div>
-
-<div class="hud-corner hud-tl"></div>
-<div class="hud-corner hud-tr"></div>
-<div class="hud-corner hud-bl"></div>
-<div class="hud-corner hud-br"></div>
-
-<div class="hud-data tl" id="hud-tl">
-  SYS::ONLINE<br>
-  LOC::SPATIAL_LAYER_7<br>
-  RES::1920×1080<br>
-  PING::&lt;1ms
-</div>
-<div class="hud-data tr" id="hud-tr">
-  MODULE::QUIZ_v2.4<br>
-  AUTH::VERIFIED<br>
-  ENC::AES-256<br>
-  <span id="hud-time">--:--:--</span>
-</div>
-<div class="hud-data bl">
-  REMOTE_WORK::ANALYSIS<br>
-  SECTIONS::03<br>
-  Q_LOADED::10
-</div>
-
-<div id="intro" class="screen active">
-  <div class="intro-orb">
-    <div class="orb-ring"></div>
-    <div class="orb-ring"></div>
-    <div class="orb-ring"></div>
-    <div class="orb-core"></div>
+<div id="scroll-bar"></div>
+<nav>
+  <div class="logo">UI/UX ⬡ REV</div>
+  <button class="tab-btn active" onclick="switchTab('qcm',this)">QCM</button>
+  <button class="tab-btn" onclick="switchTab('exercises',this)">Exercices Code</button>
+  <button class="tab-btn" onclick="switchTab('flashcards',this)">Flashcards</button>
+  <button class="tab-btn" onclick="switchTab('cheatsheet',this)">Cheat Sheet</button>
+  <button class="tab-btn" onclick="switchTab('traps',this)">Pièges d'exam</button>
+  <div class="search-wrap">
+    <input type="text" id="global-search" placeholder="Rechercher..." oninput="globalSearch(this.value)">
+    <div id="search-results"></div>
   </div>
-  <div class="intro-eyebrow">// POST-SESSION ASSESSMENT //</div>
-  <div class="intro-title">
-    REMOTE<br>
-    <span class="hl">WORK</span> <span class="hl2">QUIZ</span>
+</nav>
+
+<!-- ===== QCM TAB ===== -->
+<div class="tab active" id="tab-qcm">
+  <div class="dash" id="dashboard"></div>
+  <div class="export-bar">
+    <button class="btn sm outline" onclick="exportWrong()">⬇ Exporter erreurs</button>
+    <button class="btn sm outline" onclick="retryWrong()">↺ Réessayer erreurs</button>
+    <button class="btn sm outline" onclick="resetQuiz()">✕ Réinitialiser</button>
   </div>
-  <div class="intro-meta">
-    <div class="meta-chip">10 QUESTIONS</div>
-    <div class="meta-chip">30s / QUESTION</div>
-    <div class="meta-chip">~8 MIN TOTAL</div>
+  <div class="mode-select">
+    <button class="mode-btn active" onclick="setMode('all',this)">Tout</button>
+    <button class="mode-btn" onclick="setMode('weak',this)">Sujets faibles</button>
+    <button class="mode-btn" onclick="setMode('timed',this)">Mode chronométré</button>
+    <button class="mode-btn" onclick="setMode('random',this)">Aléatoire</button>
   </div>
-  <button class="btn-launch" id="btn-launch" onclick="startOrResumeQuiz()">INITIALIZE SESSION</button>
+  <div id="qcm-inner"></div>
 </div>
 
-<div id="quiz" class="screen">
-  <div class="quiz-hud">
-    <span class="q-id" id="q-id">Q.01 / 10</span>
-    <div class="progress-nodes" id="prog-nodes"></div>
-    <div class="timer-hud">
-      <div class="timer-track"><div class="timer-fill" id="t-fill"></div></div>
-      <span class="timer-num" id="t-num">30</span>
-    </div>
+<!-- ===== EXERCISES TAB ===== -->
+<div class="tab" id="tab-exercises">
+  <div class="export-bar">
+    <button class="btn sm outline" onclick="markAllEx()">✓ Tout compléter</button>
+    <button class="btn sm outline" onclick="resetEx()">↺ Réinitialiser</button>
   </div>
+  <div id="exercises-inner"></div>
+</div>
 
-  <div class="holo-panel" id="q-panel">
-    <div class="panel-notch tl"></div>
-    <div class="panel-notch tr"></div>
-    <div class="panel-notch bl"></div>
-    <div class="panel-notch br"></div>
-    <div class="q-section-tag" id="q-sec">SECTION</div>
-    <div class="q-text" id="q-txt">Question text</div>
-    <div class="opts-grid" id="opts-grid"></div>
-    <div class="explanation" id="expl" style="display:none;"></div>
-    <div class="next-row" id="next-row" style="display:none;">
-      <button class="btn-next" onclick="nextQ()">NEXT QUERY →</button>
-    </div>
+<!-- ===== FLASHCARDS TAB ===== -->
+<div class="tab" id="tab-flashcards">
+  <div class="fc-controls">
+    <button class="btn sm" onclick="shuffleFC()">⇌ Mélanger</button>
+    <button class="btn sm outline" onclick="setFCMode('all')">Toutes</button>
+    <button class="btn sm outline" onclick="setFCMode('review')">À revoir</button>
+    <button class="btn sm outline" onclick="setFCMode('mastered')">Maîtrisées</button>
+    <select class="fc-filter" id="fc-chapter-filter" onchange="filterFCChapter(this.value)">
+      <option value="all">Tous chapitres</option>
+    </select>
+    <button class="btn sm outline" onclick="exportFC()">⬇ Exporter à revoir</button>
+  </div>
+  <div class="fc-prog" id="fc-progress"></div>
+  <div class="fc-wrap"><div class="fc-inner" id="fc-card" onclick="flipCard()">
+    <div class="fc-front"><div class="flabel">QUESTION</div><div class="fq" id="fc-front-txt"></div><div style="font-size:10px;color:var(--muted);margin-top:16px">Cliquer pour révéler</div></div>
+    <div class="fc-back"><div class="blabel">RÉPONSE</div><div class="fa" id="fc-back-txt"></div></div>
+  </div></div>
+  <div class="fc-nav">
+    <button class="btn sm outline" onclick="prevFC()">← Préc</button>
+    <span class="fc-count" id="fc-count">1/30</span>
+    <button class="btn sm outline" onclick="nextFC()">Suiv →</button>
+  </div>
+  <div class="fc-states">
+    <button class="state-btn review" onclick="setFCState('review')">🔁 À revoir</button>
+    <button class="state-btn medium" onclick="setFCState('medium')">〜 Moyen</button>
+    <button class="state-btn mastered" onclick="setFCState('mastered')">✓ Maîtrisé</button>
   </div>
 </div>
 
-<div id="results" class="screen">
-  <div class="results-header">// SESSION COMPLETE — ANALYSIS REPORT //</div>
-  <div class="score-holo">
-    <svg viewBox="0 0 200 200">
-      <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(0,245,255,0.1)" stroke-width="8"/>
-      <circle cx="100" cy="100" r="85" fill="none" stroke="var(--cyan)" stroke-width="8"
-        stroke-linecap="butt" stroke-dasharray="534" id="score-arc" stroke-dashoffset="534"/>
-    </svg>
-    <div class="score-holo-text">
-      <div class="score-big" id="sc-num">0</div>
-      <div class="score-out" id="sc-out">OUT OF 10</div>
-    </div>
+<!-- ===== CHEAT SHEET TAB ===== -->
+<div class="tab" id="tab-cheatsheet">
+  <div class="export-bar">
+    <button class="btn sm outline" onclick="window.print()">🖨 Imprimer</button>
   </div>
-  <div>
-    <div class="verdict-title" id="verd-title">PROCESSING…</div>
-    <div class="verdict-body" id="verd-body"></div>
+  <div class="cs-index" id="cs-index"></div>
+  <div id="cheatsheet-inner"></div>
+</div>
+
+<!-- ===== TRAPS TAB ===== -->
+<div class="tab" id="tab-traps">
+  <div class="trap-filter">
+    <button class="tf-btn active" onclick="filterTrap('all',this)">Tous</button>
+    <button class="tf-btn" onclick="filterTrap('confusion',this)">Confusion fréquente</button>
+    <button class="tf-btn" onclick="filterTrap('erreur',this)">Erreur classique</button>
+    <button class="tf-btn" onclick="filterTrap('exception',this)">Exception importante</button>
+    <button class="tf-btn" onclick="filterTrap('limite',this)">Cas limite</button>
   </div>
-  <div class="stats-row">
-    <div class="stat-box">
-      <div class="stat-val g" id="s-ok">0</div>
-      <div class="stat-lbl">CORRECT</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-val r" id="s-no">0</div>
-      <div class="stat-lbl">INCORRECT</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-val y" id="s-sk">0</div>
-      <div class="stat-lbl">SKIPPED</div>
-    </div>
-  </div>
-  <button class="btn-restart" onclick="restart()">↺ REINITIALIZE</button>
+  <div id="traps-inner"></div>
 </div>
 
 <script>
-/* ═══ AMBIENT PARTICLE CANVAS ═══ */
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let W, H, particles = [];
+// ============================================================
+// DATA
+// ============================================================
 
-function resizeCanvas() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
+const CHAPTERS = {
+  p1: "Partie 1 – Intro UI/UX",
+  p2: "Partie 2 – Ergonomie & Lois",
+  p3: "Partie 3 – Bases de Projet",
+  p4: "Partie 4 – Design Thinking"
+};
 
-class Particle {
-  constructor() { this.reset(); }
-  reset() {
-    this.x = Math.random() * W;
-    this.y = Math.random() * H;
-    this.r = Math.random() * 1.2 + 0.2;
-    this.vx = (Math.random() - 0.5) * 0.3;
-    this.vy = (Math.random() - 0.5) * 0.3;
-    this.a = Math.random() * 0.5 + 0.1;
-    this.color = Math.random() > 0.5 ? '0,245,255' : '176,96,255';
-  }
-  update() {
-    this.x += this.vx; this.y += this.vy;
-    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
-  }
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${this.color},${this.a})`;
-    ctx.fill();
-  }
-}
-
-function initParticles() {
-  particles = Array.from({length: 80}, () => new Particle()); // Reduced slightly for mobile performance
-}
-
-function drawConnections() {
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < 100) {
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = `rgba(0,245,255,${0.06 * (1 - dist/100)})`;
-        ctx.lineWidth = 0.5;
-        ctx.stroke();
-      }
-    }
-  }
-}
-
-function animCanvas() {
-  ctx.clearRect(0, 0, W, H);
-  drawConnections();
-  particles.forEach(p => { p.update(); p.draw(); });
-  requestAnimationFrame(animCanvas);
-}
-
-resizeCanvas();
-initParticles();
-animCanvas();
-window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
-
-/* ═══ HUD CLOCK ═══ */
-function updateHUDTime() {
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,'0');
-  const mm = String(now.getMinutes()).padStart(2,'0');
-  const ss = String(now.getSeconds()).padStart(2,'0');
-  const el = document.getElementById('hud-time');
-  if (el) el.textContent = `${hh}:${mm}:${ss}`;
-}
-setInterval(updateHUDTime, 1000);
-updateHUDTime();
-
-/* ═══ RIPPLE ═══ */
-document.addEventListener('click', e => {
-  if (e.target.tagName === 'BUTTON') {
-    const rip = document.createElement('span');
-    rip.className = 'ripple';
-    rip.style.cssText = `left:${e.clientX-20}px;top:${e.clientY-20}px;width:40px;height:40px;`;
-    document.body.appendChild(rip);
-    setTimeout(() => rip.remove(), 600);
-  }
-});
-
-/* ═══ QUIZ DATA ═══ */
-const QS = [
-  { sec:"SECTION 01 — FRAMEWORK", q:"Before 2020, remote work was mainly associated with which two groups?", opts:["Large corporations and governments","Freelancers and tech startups","Healthcare workers and educators","Finance professionals and lawyers"], c:1, ex:"Prior to the pandemic, remote work was a niche arrangement primarily reserved for <strong>freelancers and tech startups</strong>. The traditional office was the unquestioned standard for most industries." },
-  { sec:"SECTION 01 — FRAMEWORK", q:"What is the 'Paradox of Remote Work' described in the presentation?", opts:["Workers earn more but spend more on equipment","Companies save money but lose productivity","Workers gained autonomy while corporations increased digital monitoring","Talent pools expanded but hiring slowed down"], c:2, ex:"The paradox is the constant tension between <strong>freedom and control</strong> — professionals gained unprecedented autonomy and flexibility, while corporations simultaneously increased digital monitoring and performance tracking." },
-  { sec:"SECTION 01 — MODELS", q:"Which remote work model provides complete professional independence but trades away job security?", opts:["Fully Remote","Hybrid Work","Outsourcing","Freelancing"], c:3, ex:"<strong>Freelancing</strong> provides complete professional independence, but trades away job security and stable income — distinct from fully remote which still implies an employer-employee relationship." },
-  { sec:"SECTION 02 — ADVANTAGES", q:"Which of the following was listed as a company-level advantage of remote work?", opts:["Higher employee salaries","Easier recruitment from anywhere","Stronger team cohesion","Faster decision making"], c:1, ex:"For companies, <strong>easier recruitment</strong> — the ability to hire talent from anywhere — was a key benefit, alongside reduced costs and lower absenteeism." },
-  { sec:"SECTION 02 — REALITY CHECK", q:"The presentation argues that 'flexibility is partly a myth.' What supports this claim?", opts:["Remote workers are paid less than office workers","Deadlines, meetings, and schedules still control the workday","Most remote jobs require on-site visits once a month","Technology makes remote collaboration impossible"], c:1, ex:"The reality check slide points out that <strong>deadlines, meetings, and schedules still control the day</strong>, meaning the promise of full flexibility rarely holds true in practice." },
-  { sec:"SECTION 02 — KEY NUMBERS", q:"What percentage of employees work remotely at least part-time today (post-pandemic)?", opts:["Around 5–7%","Around 15%","Around 30%","Around 60%"], c:2, ex:"Before COVID, remote work was rare at only <strong>5–7%</strong>. Today, <strong>around 30%</strong> of employees work remotely at least part-time — a dramatic structural shift." },
-  { sec:"SECTION 03 — LEGAL", q:"Which article of Tunisia's Labour Code authorises remote work?", opts:["Article 12","Article 29","Article 47","Article 81"], c:1, ex:"<strong>Article 29</strong> of the Labour Code allows remote work in Tunisia. However, many companies still lack clear contracts covering working hours, social security, and employee rights." },
-  { sec:"SECTION 03 — PRODUCTIVITY", q:"A Stanford study found remote workers can be up to 13% more productive — but a Microsoft report showed a trade-off. What decreased?", opts:["Individual task speed","Team creativity and innovation","Meeting attendance","Software tool usage"], c:1, ex:"While individual productivity rose, the Microsoft report revealed that <strong>team creativity decreased</strong>. This is why hybrid work became the dominant model — balancing both dimensions." },
-  { sec:"SECTION 03 — TOOLS", q:"Which was described as an AI-powered tool that improved efficiency and reduced workload in remote settings?", opts:["Slack","Zoom","Notion AI","Google Drive"], c:2, ex:"<strong>Notion AI</strong> was cited as an AI-powered solution shaping the future of remote work, improving efficiency beyond what standard communication tools offer." },
-  { sec:"SECTION 03 — REMOTE WORK 2.0", q:"What is the presentation's final conclusion about the future of work?", opts:["Remote work will completely replace offices within 5 years","The office will make a full comeback by 2030","Work is moving toward a hybrid, technology-driven model — neither fully remote nor fully office-based","Remote work is only viable for tech companies"], c:2, ex:"The conclusion: the future will be <strong>neither fully remote nor fully office-based</strong>, but a balance between flexibility, control, and digital collaboration — a hybrid model still being defined." }
+const QUESTIONS = [
+  // PARTIE 1
+  {id:1,chapter:"p1",diff:"easy",q:"Quelle est la différence entre UI et UX ?",opts:["UI = expérience globale, UX = interface visuelle","UI = interface visuelle et interactions directes, UX = expérience globale du produit","UI = expérience client, UX = interface tactile","Ils sont synonymes"],ans:1,expl:"L'UI (User Interface) concerne la conception visuelle et les interactions directes. L'UX (User Experience) désigne l'expérience globale du produit.",trap:null},
+  {id:2,chapter:"p1",diff:"easy",q:"Que signifie CX ?",opts:["Customer Experience","Computer Exchange","Content Exchange","Customer Experience eXtended"],ans:0,expl:"CX = Customer Experience : l'expérience entre le client et l'entreprise, avant, pendant et après, au-delà du produit.",trap:null},
+  {id:3,chapter:"p1",diff:"easy",q:"IHM signifie :",opts:["Interface Homme-Machine","Interaction Homme-Multimédia","Interface Hybride Multimodale","Interaction Hybride Machine"],ans:0,expl:"IHM = Interface Homme-Machine : matériels et logiciels permettant à l'utilisateur d'interagir avec un SI.",trap:"Ne pas confondre IHM (l'objet) avec l'Interaction Homme-Machine (la discipline)."},
+  {id:4,chapter:"p1",diff:"med",q:"L'approche technocentrée signifie :",opts:["On se concentre sur l'humain et ses besoins","On se concentre sur la machine, l'utilisateur s'adapte","On adapte l'interface à l'environnement","On utilise des technologies de pointe"],ans:1,expl:"L'approche technocentrée met la machine au centre : capacités techniques d'abord, puis l'utilisateur doit s'adapter → logique système.",trap:"Opposé de l'approche anthropocentrée."},
+  {id:5,chapter:"p1",diff:"med",q:"L'approche anthropocentrée suit la logique :",opts:["Système","Utilisateur","Machine","Technologie"],ans:1,expl:"L'approche anthropocentrée centre la conception sur l'homme et ses besoins → logique utilisateur. La machine s'adapte à l'humain.",trap:null},
+  {id:6,chapter:"p1",diff:"easy",q:"Quelles sont les conséquences d'une mauvaise IHM ? (plusieurs réponses possibles)",opts:["Baisse de productivité","Augmentation des ventes","Erreurs pouvant mener à des accidents","Ennui et frustration"],ans:[0,2,3],expl:"Une mauvaise IHM provoque : baisse de productivité, ennui/anxiété/frustration, rejet de l'interface, coût d'apprentissage élevé, erreurs → accidents mortels.",trap:null},
+  {id:7,chapter:"p1",diff:"med",q:"WYSIWYG est lié à quel concept ?",opts:["Ce que vous voyez est ce que vous obtenez (ACAI)","Web Yet Simple Interface Getting","What You See Is What You Give","Widget Yet Simple Interface Grid"],ans:0,expl:"WYSIWYG = 'What You See Is What You Get' = ACAI (ce que vous voyez est ce que vous obtenez). Concept d'interface GUI où l'affichage reflète le résultat final.",trap:null},
+  {id:8,chapter:"p1",diff:"hard",q:"Parmi les thèmes humains influençant l'IHM, H3 correspond à :",opts:["Human information processing","Langage et communication","Ergonomie","Interaction Homme-Machine"],ans:2,expl:"H3 = Ergonomie : adaptation du système aux capacités physiques et physiologiques de l'humain (caractéristiques anthropométriques, limites perceptives/cognitives, fatigue).",trap:"H1 = traitement de l'information, H2 = langage et communication, H3 = ergonomie."},
+  {id:9,chapter:"p1",diff:"med",q:"L'UX Design repose sur 3 piliers :",opts:["Humain, Technique, Marketing","Design, Code, Test","Utilisateur, Client, Entreprise","Fonctionnel, Visuel, Sonore"],ans:0,expl:"Les 3 piliers UX Design : Humain (attractif), Tech (réalisable), Marketing (durable).",trap:null},
+  {id:10,chapter:"p1",diff:"med",q:"Combien de critères définissent l'UX Design ?",opts:["5","6","7","9"],ans:2,expl:"7 critères : Utile, Trouvable, Utilisable, Désirable, Navigable, Accessible, Crédible.",trap:null},
+  {id:11,chapter:"p1",diff:"easy",q:"Le critère 'Trouvable' en UX Design est lié à :",opts:["L'accessibilité aux personnes handicapées","Le référencement dans les moteurs de recherche (SEO)","La navigation mobile","La qualité visuelle"],ans:1,expl:"Trouvable = SEO : trouver facilement le site dans les moteurs de recherche.",trap:null},
+  {id:12,chapter:"p1",diff:"hard",q:"Quel composant technique (C) traite l'organisation interne du système ?",opts:["C1","C2","C3","C5"],ans:3,expl:"C5 = Dialogue Architecture : organisation interne du système. C1=devices, C2=dialogue technique, C3=concepts abstraits, C4=représentation graphique.",trap:null},
+  {id:13,chapter:"p1",diff:"med",q:"Quel est le rôle principal de l'UI Designer ?",opts:["Étudier les émotions des internautes","Assurer le lien homme-machine et la clarté de navigation","Rendre le site accessible et crédible","Insérer des scénarios utilisateur"],ans:1,expl:"L'UI Designer assure le lien homme-machine, conçoit l'interface, clarifie la navigation et optimise les parcours.",trap:"L'UX Designer est celui qui insère des scénarios et étudie les émotions."},
+  {id:14,chapter:"p1",diff:"easy",q:"La réalité augmentée combine :",opts:["Uniquement le virtuel","Réel + virtuel","Réel uniquement","Virtuel + suppression d'éléments"],ans:1,expl:"La réalité augmentée = réel + virtuel. La réalité diminuée = suppression d'éléments. La réalité virtuelle = simulation.",trap:"Ne pas confondre réalité augmentée (ajout) et réalité diminuée (suppression)."},
+  {id:15,chapter:"p1",diff:"hard",q:"Quel thème Usage concerne l'adaptation de l'utilisateur à l'interface ?",opts:["U1","U2","U3","U4"],ans:2,expl:"U3 = Human-Machine Adaptation : adapter l'utilisateur, adapter l'interface, ou les deux. U1 = organisation sociale, U2 = types d'applications.",trap:null},
+  // PARTIE 2
+  {id:16,chapter:"p2",diff:"easy",q:"La loi de Fitts modélise :",opts:["Le temps de mémorisation","Le temps pour atteindre une cible selon sa taille et distance","Le nombre d'options avant décision","La durée d'attention"],ans:1,expl:"Loi de Fitts : T = I.log₂(2D/L). Cible loin (D↑) → plus lent. Cible petite (L↓) → plus lent.",trap:null},
+  {id:17,chapter:"p2",diff:"med",q:"Selon la loi de Hick, que se passe-t-il quand le nombre de choix augmente ?",opts:["Le temps de décision diminue","Le temps de décision augmente","L'utilisateur choisit mieux","Aucun effet"],ans:1,expl:"Loi de Hick : le temps nécessaire pour prendre une décision augmente avec le nombre et la complexité des choix.",trap:"Contre-intuitif : plus de choix = décision plus lente, pas meilleure."},
+  {id:18,chapter:"p2",diff:"easy",q:"La MCT (Mémoire à Court Terme) peut stocker environ :",opts:["3±1 items","7±2 items","7±3 items","100 items"],ans:2,expl:"La MCT stocke 7±2 ou 7±3 items, avec un oubli de 15 à 30 secondes. Accès séquentiel.",trap:"7±2 est aussi cité (loi de Miller) – ici le cours dit 7±3. Savoir les deux."},
+  {id:19,chapter:"p2",diff:"med",q:"La MLT (Mémoire à Long Terme) se caractérise par :",opts:["Capacité limitée, accès séquentiel","Capacité infinie, accès associatif, durée illimitée","7±3 items, 30 sec","Accès direct, capacité de 1000 items"],ans:1,expl:"MLT : capacité infinie, accès associatif, durée de stockage illimitée. Contrairement à la MCT.",trap:"MLT ≠ MCT. Ne pas inverser les propriétés."},
+  {id:20,chapter:"p2",diff:"hard",q:"Le cycle du système moteur dure environ :",opts:["7 ms","70 ms","700 ms","7000 ms"],ans:1,expl:"Le système moteur contrôle les mouvements du corps avec des micro-mouvements discrets : cycle = 70 ms.",trap:null},
+  {id:21,chapter:"p2",diff:"easy",q:"Le principe des 2 secondes stipule :",opts:["Une page doit se charger en 2 secondes max","La réponse système ne doit pas dépasser 2 secondes","Un utilisateur décide en 2 secondes","Un clic doit être traité en 2 secondes"],ans:1,expl:"Le principe des 2 secondes : la réponse système ne doit pas dépasser 2 sec. Sinon : l'utilisateur pense que ça ne fonctionne pas.",trap:null},
+  {id:22,chapter:"p2",diff:"easy",q:"Combien de clics maximum pour accéder à une information selon le principe des 3 clics ?",opts:["2","3","5","7"],ans:1,expl:"Principe des 3 clics : toute information doit être accessible en 3 clics maximum, sinon l'utilisateur risque d'abandonner.",trap:null},
+  {id:23,chapter:"p2",diff:"med",q:"La loi de Gestalt dit que le cerveau :",opts:["Perçoit des éléments isolés","Perçoit un ensemble organisé","Analyse chaque pixel séparément","Ne mémorise que les couleurs"],ans:1,expl:"Gestalt : le cerveau ne perçoit pas des éléments isolés, il perçoit un ensemble organisé (proximité, similarité, continuité, fermeture, symétrie, région).",trap:null},
+  {id:24,chapter:"p2",diff:"hard",q:"L'interférence proactive en mémoire signifie :",opts:["Une nouvelle info bloque une ancienne","Une ancienne info bloque une nouvelle","Deux infos similaires se confondent","L'encodage est défectueux"],ans:1,expl:"Interférence proactive : une ancienne information bloque l'encodage d'une nouvelle. L'interférence rétroactive fait l'inverse.",trap:"Proactive = ancienne bloque nouvelle. Rétroactive = nouvelle bloque ancienne."},
+  {id:25,chapter:"p2",diff:"med",q:"L'ergonomie logicielle vise à :",opts:["Rendre l'interface belle","Adapter les logiciels à l'utilisateur pour réduire erreurs et apprentissage","Optimiser le code","Concevoir des capteurs ergonomiques"],ans:1,expl:"L'ergonomie logicielle adapte les logiciels à l'utilisateur pour diminuer les erreurs, réduire le temps d'apprentissage.",trap:null},
+  {id:26,chapter:"p2",diff:"med",q:"Quels sont les 2 critères de base de conception UI ergonomique ?",opts:["Utilité et Utilisabilité","Design et Performance","Vitesse et Accessibilité","Couleur et Typographie"],ans:0,expl:"a. Utilité : produit satisfait critères fonctionnels/opérationnels. b. Utilisabilité : facilité d'apprentissage et d'utilisation.",trap:null},
+  {id:27,chapter:"p2",diff:"hard",q:"Les principes de Gestalt incluent (plusieurs réponses) :",opts:["Proximité","Similarité","Fermeture","Symétrie"],ans:[0,1,2,3],expl:"Gestalt inclut : Proximité, similarité, continuité, fermeture, symétrie, région. Toutes ces réponses font partie des lois de Gestalt.",trap:null},
+  // PARTIE 3
+  {id:28,chapter:"p3",diff:"easy",q:"Un Persona est :",opts:["Un utilisateur réel interviewé","Une représentation fictive basée sur des caractéristiques fréquentes d'utilisateurs réels","Un profil de concurrent","Un test utilisateur"],ans:1,expl:"Persona = représentation fictive basée sur des caractéristiques fréquentes observées chez plusieurs utilisateurs réels (ce n'est pas réel).",trap:"Un persona N'EST PAS un utilisateur réel."},
+  {id:29,chapter:"p3",diff:"med",q:"La Journey Map répond à la question :",opts:["Pour qui tu développes ?","Comment il utilise ton produit ?","Par où il passe exactement dans l'application ?","Quels sont ses besoins ?"],ans:1,expl:"Journey Map = comment l'utilisateur vit l'expérience, visualisation du parcours à travers les étapes d'interaction avec ses émotions, actions, difficultés.",trap:"User Flow répond à 'par où il passe exactement'. Journey Map = expérience globale vécue."},
+  {id:30,chapter:"p3",diff:"med",q:"Un User Flow répond à la question :",opts:["Pour qui tu développes ?","Comment il utilise ton produit ?","Par où il passe exactement dans l'application ?","Quels sont ses motivations ?"],ans:2,expl:"User Flow = représentation graphique montrant comment les utilisateurs naviguent sur une interface : flux de navigation + interactions.",trap:null},
+  {id:31,chapter:"p3",diff:"hard",q:"La démarche itérative suit le cycle :",opts:["Analyse → Dév → Livraison","Concevoir → Prototype → Évaluer → Améliorer","Idéation → Test → Production","Planifier → Coder → Livrer"],ans:1,expl:"Démarche itérative : Concevoir → Prototype → Évaluer → Améliorer. Cycles répétés jusqu'à satisfaction avec évaluation formative.",trap:null},
+  {id:32,chapter:"p3",diff:"med",q:"La démarche incrémentale se distingue de la démarche itérative car :",opts:["Elle est plus rapide","Elle travaille sur une seule zone de l'interface jusqu'à satisfaction","Elle implique les utilisateurs","Elle utilise des prototypes"],ans:1,expl:"Incrémental : travail sur une seule zone de l'interface jusqu'à satisfaction, puis ajout d'un incrément. Itératif : travail sur l'intégralité.",trap:"Itératif = toute l'interface. Incrémental = zone par zone."},
+  {id:33,chapter:"p3",diff:"easy",q:"Un prototype Low Fidelity est :",opts:["Un prototype interactif et détaillé","Un prototype proche du produit final","Simple et rapide, dessin à la main","Un prototype codé"],ans:2,expl:"Low fidelity = simple et rapide, informel, dessin à la main. High fidelity = proche du produit final, design détaillé, interactif.",trap:null},
+  {id:34,chapter:"p3",diff:"med",q:"L'ordre correct des étapes de prototypage est :",opts:["Wireframe → Sketch → Prototype","Sketch → Wireframe/Mockup → Prototype","Prototype → Mockup → Sketch","Mockup → Sketch → Wireframe"],ans:1,expl:"1. Croquis/Sketch (aperçu global), 2. Maquette/Wireframe/Mockup (détaillé sans interaction), 3. Prototype (version incomplète et interactive).",trap:null},
+  {id:35,chapter:"p3",diff:"hard",q:"Le Zoning sert à :",opts:["Tester les fonctionnalités","Définir la structure et disposition des éléments avant l'arborescence","Présenter la structure grossière après l'arborescence","Créer le design graphique final"],ans:2,expl:"Le Zoning présente de manière simple et grossière (blocs) la structure et disposition des éléments. Il vient APRÈS l'arborescence.",trap:"Zoning vient après l'arborescence, AVANT le wireframe."},
+  {id:36,chapter:"p3",diff:"med",q:"Un Wireframe contient :",opts:["Des couleurs et du design graphique","Du texte et boutons fictifs, sans couleurs ni design","Des animations interactives","Du code HTML"],ans:1,expl:"Wireframe = représentation détaillée sans design graphique. Chaque bloc contient texte/bouton fictif, sans couleurs ni design.",trap:null},
+  {id:37,chapter:"p3",diff:"med",q:"La veille concurrentielle consiste à :",opts:["Observer les nouvelles technologies","Analyser les besoins clients","Observer les concurrents, leurs produits, prix, stratégies","Surveiller l'image de l'entreprise"],ans:2,expl:"Veille concurrentielle : observe les concurrents, leurs produits, prix, stratégies. La veille commerciale analyse les besoins clients.",trap:"Veille concurrentielle ≠ veille commerciale."},
+  {id:38,chapter:"p3",diff:"hard",q:"Dans la représentation HTA, une alternative stricte signifie :",opts:["Plusieurs tâches en parallèle","OU exclusif : une seule manière est exécutée","OU non exclusif : plusieurs manières possibles","Tâches répétées en boucle"],ans:1,expl:"Alternative stricte = OU exclusif : une seule des manières est exécutée. Alternative non stricte = OU : peut s'exécuter de plusieurs manières.",trap:"Stricte = exclusif (XOR). Non stricte = inclusif (OR)."},
+  {id:39,chapter:"p3",diff:"med",q:"Quelle est la différence entre Task Flow et User Flow ?",opts:["Task Flow = plusieurs scénarios, User Flow = scénario unique","Task Flow = chemin idéal pour une tâche, User Flow = tous les chemins possibles","Ils sont identiques","Task Flow est centré utilisateur, User Flow centré tâche"],ans:1,expl:"Task Flow : chemin idéal pour une tâche précise, un scénario, centré tâche. User Flow : tous les chemins possibles, plusieurs scénarios, centré utilisateur.",trap:null},
+  {id:40,chapter:"p3",diff:"med",q:"L'approche Agile valorise :",opts:["Livraison du produit uniquement à la fin","Communication, partage, entraide, auto-gestion","Division stricte des étapes sans interactions","Planification rigide"],ans:1,expl:"Approche Agile : communication, partage des infos, points de vue complémentaires, entraide, auto-discipline et autogestion.",trap:"L'approche classique livre le produit uniquement à la fin. L'Agile livre en continu."},
+  {id:41,chapter:"p3",diff:"hard",q:"Un composant de Persona inclut (plusieurs réponses) :",opts:["Données générales","Objectifs (besoins)","Contraintes","Motivations et freins"],ans:[0,1,2,3],expl:"Composants d'un persona : données générales, objectifs (besoins), contraintes (manque de temps, budget), motivations (ce qui déclenche ses actes), freins (ce qui peut le bloquer).",trap:null},
+  {id:42,chapter:"p3",diff:"med",q:"Dans le modèle de la tâche, une tâche élémentaire est :",opts:["La tâche principale","Une tâche qu'on ne peut plus décomposer en sous-tâches","Un objectif global","Une procédure complète"],ans:1,expl:"Tâche élémentaire = tâche qu'on ne peut plus décomposer en sous-tâches (opérations E/S).",trap:null},
+  {id:43,chapter:"p3",diff:"hard",q:"Dans l'interface, quel agencement garde l'écran affiché en permanence ?",opts:["Séquentiel","Alternatif","Itératif","Simultané"],ans:2,expl:"Impact itératif sur l'interface : l'écran reste affiché (répétition de la même tâche).",trap:null},
+  {id:44,chapter:"p3",diff:"med",q:"La veille e-réputation surveille :",opts:["Les nouvelles technologies","Les lois et normes","L'image de l'entreprise, avis clients, réseaux sociaux","Les besoins clients"],ans:2,expl:"Veille e-réputation : image de l'entreprise, avis clients, commentaires sur réseaux sociaux.",trap:null},
+  // PARTIE 4
+  {id:45,chapter:"p4",diff:"easy",q:"Le Design Thinking est :",opts:["Une méthode de codage","Une approche centrée utilisateur pour comprendre les besoins et concevoir des solutions adaptées","Un logiciel de design","Une méthode de gestion de projet"],ans:1,expl:"Design Thinking = approche centrée utilisateur pour comprendre ses besoins et concevoir des solutions adaptées et innovantes.",trap:null},
+  {id:46,chapter:"p4",diff:"med",q:"Combien d'étapes principales compte le Design Thinking ?",opts:["3","5","7","9"],ans:1,expl:"5 étapes : Empathie, Définition, Idéation, Prototyper, Test. Ces étapes sont cycliques, pas linéaires.",trap:"Les étapes ne sont PAS linéaires mais cycliques."},
+  {id:47,chapter:"p4",diff:"med",q:"Le Business Thinking utilise un raisonnement :",opts:["Abductif","Intuitif","Déductif","Inductif"],ans:2,expl:"Business Thinking = raisonnement déductif, logique, preuves, décision rapide. Design Thinking = raisonnement abductif, intuitif.",trap:"Business = déductif. Design = abductif."},
+  {id:48,chapter:"p4",diff:"hard",q:"Les 3 critères pour valider une idée en Design Thinking sont :",opts:["Désirabilité, Faisabilité, Viabilité","Utile, Utilisable, Désirable","Empathie, Idéation, Test","Rapidité, Beauté, Coût"],ans:0,expl:"3 critères : Désirabilité (conforme attentes clients), Faisabilité (utile et réalisable), Viabilité (peut fonctionner économiquement). La croisée = design d'innovation.",trap:null},
+  {id:49,chapter:"p4",diff:"med",q:"La phase d'Exploration dans le Process UX permet de :",opts:["Créer les prototypes","Identifier les besoins utilisateurs","Planifier le projet","Évaluer les solutions"],ans:1,expl:"Étape 2 du Process UX = Exploration : identifier les besoins utilisateurs via interview, questionnaire, sonde culturelle, observation, personas, carte d'empathie.",trap:null},
+  {id:50,chapter:"p4",diff:"easy",q:"Un brainstorming idéal réunit :",opts:["Un seul expert pendant 3h","Un grand groupe homogène","Un petit groupe avec profils différents, moins d'1h","Uniquement des designers"],ans:2,expl:"Brainstorming : petit groupe avec profils différents, moins d'1h. Générer une grande quantité puis les classifier.",trap:null},
+  {id:51,chapter:"p4",diff:"med",q:"Un Focus Group compte idéalement :",opts:["2-3 personnes","7-10 personnes","20-30 personnes","50 personnes"],ans:1,expl:"Focus group : 7-10 personnes, 1-2 heures. Discussion en groupe pour comprendre opinions et besoins.",trap:"Brainstorming = petit groupe. Focus group = 7-10 personnes."},
+  {id:52,chapter:"p4",diff:"hard",q:"La Sonde Culturelle est :",opts:["Un questionnaire en ligne","Un test utilisateur en laboratoire","Une méthode où l'utilisateur transcrit son expérience via un kit fourni","Une interview directe"],ans:2,expl:"Sonde culturelle : demander aux utilisateurs de transcrire leur expérience à l'aide d'un Kit. Méthode qualitative, petit nombre, début de projet.",trap:null},
+  {id:53,chapter:"p4",diff:"med",q:"La carte d'empathie capture :",opts:["Les données SEO","Ce que l'utilisateur dit, pense, voit, entend, fait, ressent","Les performances techniques","Les revenus du produit"],ans:1,expl:"Carte d'empathie : ce qu'il dit, pense, voit, entend, fait, ressent. Pour comprendre profondément l'utilisateur.",trap:null},
+  {id:54,chapter:"p4",diff:"med",q:"Le Story Mapping sert à :",opts:["Raconter l'histoire sous forme de dessins","Construire l'architecture de l'information","Comprendre le parcours d'utilisation","Créer des scénarios textuels"],ans:2,expl:"Story mapping : comprendre le parcours d'utilisation. Storyboarding = raconter l'histoire sous forme de dessins. Tri par cartes = architecture info.",trap:"Story mapping ≠ Storyboarding."},
+  {id:55,chapter:"p4",diff:"hard",q:"L'inspection cognitive consiste à :",opts:["Demander aux utilisateurs de tester","Évaluer une interface en se mettant à la place de l'utilisateur","Analyser les statistiques d'usage","Corriger le code"],ans:1,expl:"Inspection cognitive : évaluer une interface par un expert en se mettant à la place de l'utilisateur.",trap:"Inspection cognitive ≠ audit ergonomique (audit = par experts UX/ergonomie)."},
+  {id:56,chapter:"p4",diff:"med",q:"La gamification en UX design signifie :",opts:["Créer des jeux vidéo","Utiliser des mécanismes du jeu pour motiver les utilisateurs","Tester l'interface en conditions de jeu","Concevoir des interfaces ludiques uniquement"],ans:1,expl:"Gamification : utiliser des mécanismes du jeu pour motiver les utilisateurs à utiliser le produit.",trap:null},
+  {id:57,chapter:"p4",diff:"med",q:"Le tri par cartes sert à :",opts:["Tester les performances","Construire l'architecture de l'information","Générer des idées","Évaluer les émotions"],ans:1,expl:"Tri par cartes = construire l'architecture de l'information. Permet aux utilisateurs d'organiser les contenus selon leur logique.",trap:null},
+  {id:58,chapter:"p4",diff:"hard",q:"Qu'est-ce qu'un Scénario d'usage ?",opts:["Un diagramme UML","Une description textuelle ou graphique d'une situation concrète d'utilisation du produit","Un test d'ergonomie","Un prototype haute fidélité"],ans:1,expl:"Scénario d'usage : décrit une situation concrète où l'utilisateur utilise un produit (texte ou dessin).",trap:null},
+  {id:59,chapter:"p3",diff:"hard",q:"Dans une tâche parallèle (HTA), quand est-elle terminée ?",opts:["Quand une seule tâche est terminée","Quand toutes les tâches obligatoires ont été exécutées","Quand la tâche principale est finie","Après un délai fixé"],ans:1,expl:"Une tâche parallèle se termine quand toutes ses tâches obligatoires ont été exécutées. À un instant donné, une et une seule s'exécute.",trap:"Structure simultanée = plusieurs tâches en parallèle EN MÊME TEMPS (multi-opérateurs). Parallèle = une seule à la fois."},
+  {id:60,chapter:"p1",diff:"hard",q:"La veille stratégique consiste principalement à :",opts:["Développer de nouveaux produits","Collecter, analyser et diffuser des informations sur l'environnement de l'entité","Former les utilisateurs","Tester l'ergonomie des interfaces"],ans:1,expl:"Veille stratégique : processus mis en place par une entité qui collecte, analyse et diffuse des informations sur son environnement (marché, concurrents, clients, technologies).",trap:null},
+  {id:61,chapter:"p3",diff:"med",q:"La conception en parallèle consiste à :",opts:["Faire travailler plusieurs équipes sur le même design","Créer plusieurs interfaces et sélectionner leurs points forts","Déployer l'interface sur plusieurs plateformes","Tester en parallèle deux prototypes"],ans:1,expl:"Conception en parallèle : créer plusieurs interfaces et sélectionner leurs points forts pour les combiner.",trap:null},
+  {id:62,chapter:"p2",diff:"hard",q:"La loi de Fitts : que signifie D et L dans la formule T = I.log₂(2D/L) ?",opts:["D = délai, L = longueur","D = distance à la cible, L = taille de la cible","D = dimensions, L = limite","D = données, L = largeur"],ans:1,expl:"T = I.log₂(2D/L) : D = distance à la cible, L = taille (largeur) de la cible. Plus D est grand ou L est petit, plus T est élevé.",trap:null},
+  {id:63,chapter:"p4",diff:"med",q:"Quel est l'ordre des outils UI dans la génération des solutions ?",opts:["Wireframe → Mockup → Zoning → Prototype","Zoning → Wireframe → Mockup → Prototype","Sketch → Zoning → Prototype","Mockup → Wireframe → Zoning"],ans:1,expl:"Ordre : Zoning (structure grossière) → Wireframe (représentation détaillée sans design) → Mockup → Prototype.",trap:null},
+  {id:64,chapter:"p1",diff:"med",q:"L'informatique multimodale désigne :",opts:["L'utilisation de plusieurs types de données","Les différents types d'interaction","La combinaison de multimédia et virtualité","L'interface tactile uniquement"],ans:1,expl:"Multimodalité = types d'interaction (différentes modalités d'entrée/sortie). Multimédia = combinaison de types de données.",trap:"Multimédia (données) ≠ multimodalité (interaction)."},
+  {id:65,chapter:"p3",diff:"easy",q:"L'évaluation formative dans la démarche itérative sert à :",opts:["Livrer le produit final","Trouver les points faibles et améliorer progressivement","Valider le cahier des charges","Tester uniquement la performance"],ans:1,expl:"Évaluation formative : trouver les points faibles et permettre une amélioration progressive (pas une validation finale = évaluation sommative).",trap:null},
+  {id:66,chapter:"p3",diff:"easy",q:"L'oculométrie (Eye Tracking) permet d'analyser :",opts:["Les mouvements des mains sur la souris","Où une personne regarde sur un écran","La vitesse de frappe au clavier","L'activité cérébrale"],ans:1,expl:"L'oculométrie (Eye Tracking) permet d'analyser où une personne regarde sur un écran via des lunettes ou simulateurs.",trap:null},
+  {id:67,chapter:"p3",diff:"med",q:"Quels sont les parcours typiques de l'œil sur un écran ? (plusieurs réponses)",opts:["Parcours en Z","Parcours en F","Parcours en X","Parcours sélectif"],ans:[0,1,3],expl:"Les parcours typiques de l'écran sont : en Z, en F, ou sélectif (mots clés, titres, boutons).",trap:"Le parcours en X n'est pas un parcours type reconnu en ergonomie."},
+  {id:68,chapter:"p3",diff:"med",q:"Dans un schéma type d'écran, où se trouve généralement la zone de travail ?",opts:["En haut, au-dessus des commandes","À gauche de la zone de sélection","Au centre/droite, encadrée par les commandes et la sélection","En bas, sous les messages optionnels"],ans:2,expl:"Schéma type : Commandes en haut, Zone de sélection à gauche/droite, Zone de travail au centre, Messages optionnels en bas.",trap:null},
+  {id:69,chapter:"p3",diff:"easy",q:"Le style de design 'Skeuomorphisme' se caractérise par :",opts:["Un minimalisme extrême","L'imitation d'objets du monde réel","Des règles définies exclusivement par Google","Un système dynamique pour produits Microsoft"],ans:1,expl:"Le skeuomorphisme est un style graphique qui imite les objets du monde réel (ex: une corbeille qui ressemble à une vraie corbeille de bureau).",trap:null},
+  {id:70,chapter:"p3",diff:"med",q:"Le 'Material Design' a été défini par :",opts:["Apple","Microsoft","Google","Facebook"],ans:2,expl:"Le Material Design est défini par Google : un ensemble de règles et d'interactions destiné à un écosystème applicatif inspiré du monde réel.",trap:null},
+  {id:71,chapter:"p3",diff:"hard",q:"Quels sont les risques associés aux méthodes de conception classiques (Merise, Cascade) ?",opts:["Implication limitée des utilisateurs","Livraison trop rapide","Méthode centrée utilisateur uniquement","Effet tunnel"],ans:[0,3],expl:"Les risques sont une implication limitée des utilisateurs et l'effet tunnel (le client ne voit rien jusqu'à la livraison finale).",trap:null},
+  {id:72,chapter:"p3",diff:"med",q:"Concernant la coordination Agile + UX, l'option 'UX avant les sprints' présente le risque :",opts:["De perdre trop de temps","D'une communication trop fluide","De décalage technologique et de manque d'implication","D'ajustement trop rapide"],ans:2,expl:"UX avant sprints donne une vision claire mais risque de créer un décalage technologique et un manque d'implication de l'équipe de dev.",trap:null},
+  {id:73,chapter:"p3",diff:"med",q:"Qu'est-ce qu'une interface en mode Workbench ?",opts:["Une interface en série, étape par étape","Une interface où tout est visible en même temps sur un 'établi'","Une interface mobile uniquement","Un menu caché"],ans:1,expl:"Workbench : tout est visible en même temps (contrairement à une utilisation en série étape par étape).",trap:null},
+  {id:74,chapter:"p3",diff:"hard",q:"Dans l'intégration Agile + UX, à quoi correspond l'User Story (US) en UX ?",opts:["Au Persona","Au Storytelling","Au Storyboard","À la Journey Map"],ans:1,expl:"En Agile+UX : US = Storytelling, Personas = Acteur, Storyboard = Étude ergonomique.",trap:null},
+  {id:75,chapter:"p3",diff:"hard",q:"Lors de la conception de l'architecture, si l'on opte pour 'plusieurs fenêtres', quelle question principale doit-on se poser ?",opts:["Comment regrouper l'info et aligner les items ?","Comment utiliser l'espace et les animations ?","Comment répartir l'info et gérer l'interaction entre fenêtres (User Flow) ?","Comment augmenter la densité de l'information ?"],ans:2,expl:"Pour plusieurs fenêtres : répartir l'info, interaction (User Flow), série vs Workbench. Pour une seule fenêtre : espace, densité, alignement, animations.",trap:null},
+  {id:76,chapter:"p3",diff:"med",q:"Quelles données composent le Modèle de l'utilisateur ? (plusieurs réponses)",opts:["Données temporelles et de composition","Données générales (âge, handicap)","Données psychologiques","Données liées à l'application (compétences, usage)"],ans:[1,2,3],expl:"Le modèle de l'utilisateur comprend les données générales, psychologiques, et liées à l'application.",trap:null},
+  {id:77,chapter:"p3",diff:"hard",q:"Quel est l'inconvénient (ou défi) principal de l'intégration Agile + UX ?",opts:["Le manque de multidisciplinarité","La différence de temporalité (UX long, sprints courts)","L'absence de travail itératif","L'absence de processus collaboratif"],ans:1,expl:"Inconvénient principal : Temporalité différente (processus UX souvent plus long que les sprints agiles très courts), créant une pression de livrer.",trap:null},
+  {id:78,chapter:"p3",diff:"med",q:"En HTA, à quel type d'enchaînement correspond le symbole ∨∨ ?",opts:["Alternative stricte (OU exclusif)","Alternative non stricte (OU inclusif)","Suite non ordonnée (parallèle)","Boucle"],ans:1,expl:"∨∨ = Alternative non stricte (OU : peut s'exécuter de plusieurs manières). ∨ = Alternative stricte (XOR).",trap:null},
 ];
 
-const LBLS = ['A','B','C','D'];
-const TIME = 30;
+const FLASHCARDS = [
+  {id:1,chapter:"p1",front:"Différence UI vs UX vs CX",back:"<strong>UI</strong> : interface visuelle et interactions directes.<br><strong>UX</strong> : expérience globale du produit.<br><strong>CX</strong> : expérience client-entreprise (avant/pendant/après)."},
+  {id:2,chapter:"p1",front:"Approche technocentrée vs anthropocentrée",back:"<strong>Technocentrée</strong> : machine d'abord → logique système.<br><strong>Anthropocentrée</strong> : humain d'abord → logique utilisateur."},
+  {id:3,chapter:"p1",front:"7 critères UX Design",back:"Utile · Trouvable (SEO) · Utilisable · Désirable · Navigable · Accessible · Crédible"},
+  {id:4,chapter:"p1",front:"3 piliers UX Design",back:"<strong>Humain</strong> (attractif) + <strong>Tech</strong> (réalisable) + <strong>Marketing</strong> (durable)"},
+  {id:5,chapter:"p1",front:"H1, H2, H3 (thèmes humains IHM)",back:"H1 = traitement info humaine<br>H2 = langage/communication<br>H3 = ergonomie (physique/physiologique)"},
+  {id:6,chapter:"p1",front:"C1 à C5 (thèmes techniques IHM)",back:"C1 = devices E/S · C2 = dialogue technique · C3 = concepts abstraits · C4 = représentation graphique · C5 = architecture dialogue"},
+  {id:7,chapter:"p1",front:"Réalité augmentée vs virtuelle vs diminuée",back:"<strong>Augmentée</strong> = réel + virtuel<br><strong>Virtuelle</strong> = simulation<br><strong>Diminuée</strong> = suppression d'éléments réels"},
+  {id:8,chapter:"p2",front:"Loi de Fitts",back:"T = I·log₂(2D/L)<br>D↑ (distance) → T↑<br>L↓ (taille cible) → T↑<br>Utilisé pour optimiser la taille/position des éléments cliquables."},
+  {id:9,chapter:"p2",front:"Loi de Hick",back:"Le temps de décision augmente avec le nombre et la complexité des choix.<br>→ Limiter les options, messages concis, pas d'infos inutiles."},
+  {id:10,chapter:"p2",front:"MCT vs MLT",back:"<strong>MCT</strong> : 7±3 items · 15-30 sec · accès séquentiel<br><strong>MLT</strong> : capacité infinie · accès associatif · durée illimitée"},
+  {id:11,chapter:"p2",front:"Types d'oubli en mémoire",back:"Encodage · Récupération · Stockage · Interférence proactive · Interférence rétroactive · Discrimination"},
+  {id:12,chapter:"p2",front:"Principe des 2 secondes",back:"La réponse système ne doit pas dépasser 2 sec. Sinon l'utilisateur relance, pense à un bug → erreurs."},
+  {id:13,chapter:"p2",front:"Principe des 3 clics",back:"Toute information doit être accessible en 3 clics maximum, sinon l'utilisateur abandonne."},
+  {id:14,chapter:"p2",front:"Loi de Gestalt – 6 principes",back:"Proximité · Similarité · Continuité · Fermeture · Symétrie · Région<br>→ Le cerveau perçoit un ensemble organisé, pas des éléments isolés."},
+  {id:15,chapter:"p2",front:"Interférence proactive vs rétroactive",back:"<strong>Proactive</strong> : ancienne info empêche mémorisation d'une nouvelle.<br><strong>Rétroactive</strong> : nouvelle info interfère avec l'ancienne."},
+  {id:16,chapter:"p3",front:"Persona – définition + composants",back:"Représentation fictive basée sur des caractéristiques fréquentes d'utilisateurs réels.<br>Composants : données générales · objectifs · contraintes · motivations · freins"},
+  {id:17,chapter:"p3",front:"Journey Map vs User Flow vs Task Flow",back:"<strong>Journey Map</strong> = comment il vit l'expérience<br><strong>User Flow</strong> = tous les chemins possibles (navigation libre)<br><strong>Task Flow</strong> = chemin idéal pour une tâche précise"},
+  {id:18,chapter:"p3",front:"Itératif vs Incrémental",back:"<strong>Itératif</strong> : toute l'interface, cycles répétés<br><strong>Incrémental</strong> : une zone à la fois jusqu'à satisfaction"},
+  {id:19,chapter:"p3",front:"Ordre des étapes de prototypage",back:"1. Sketch (croquis) – aperçu global<br>2. Wireframe/Mockup – détaillé sans design<br>3. Prototype – interactif et incomplet"},
+  {id:20,chapter:"p3",front:"Low Fidelity vs High Fidelity",back:"<strong>Lo-fi</strong> : simple, rapide, dessin à la main<br><strong>Hi-fi</strong> : proche du produit final, design détaillé, interactif"},
+  {id:21,chapter:"p3",front:"5 types de veille stratégique",back:"Concurrentielle · Commerciale · Réglementaire · E-réputation · Technologique"},
+  {id:22,chapter:"p3",front:"HTA – types d'enchaînement",back:"Séquence · Suite non ordonnée (parallèle) · Boucle · Alternative stricte (XOR) · Alternative non stricte (OR)"},
+  {id:23,chapter:"p3",front:"Impact de l'agencement sur l'interface",back:"Séquentiel→ écrans successifs · Alternatif→ un choix, les autres disparaissent · Parallèle→ champs simultanés · Itératif→ écran reste affiché"},
+  {id:24,chapter:"p3",front:"Zoning vs Wireframe vs Prototype",back:"<strong>Zoning</strong> : blocs grossiers, structure générale<br><strong>Wireframe</strong> : détaillé, sans couleurs ni design<br><strong>Prototype</strong> : fonctionnel et interactif (incomplet)"},
+  {id:25,chapter:"p4",front:"5 étapes du Design Thinking",back:"1. Empathie 2. Définition 3. Idéation 4. Prototyper 5. Test<br><em>→ Cycliques, pas linéaires</em>"},
+  {id:26,chapter:"p4",front:"3 critères pour valider une idée",back:"<strong>Désirabilité</strong> : conforme aux attentes clients<br><strong>Faisabilité</strong> : utile et réalisable<br><strong>Viabilité</strong> : durable et rentable<br>→ Croisée = design d'innovation"},
+  {id:27,chapter:"p4",front:"Business Thinking vs Design Thinking",back:"<strong>Business</strong> : logique, déductif, preuves, décision rapide<br><strong>Design</strong> : intuitif, abductif, What if?, plusieurs possibilités, goût de l'ambiguïté"},
+  {id:28,chapter:"p4",front:"Méthodes d'exploration UX (Phase 2)",back:"Interview · Questionnaire · Sonde culturelle · Observation · Personas · Carte d'empathie"},
+  {id:29,chapter:"p4",front:"Méthodes d'idéation UX (Phase 3)",back:"User stories · Brainstorming · Focus group · Tri par cartes · Conception en parallèle · Story mapping · Scénario d'usage"},
+  {id:30,chapter:"p4",front:"6 étapes du Process UX",back:"1. Planification 2. Exploration 3. Idéation 4. Test d'apprentissage 5. Génération 6. Évaluation"},
+  {id:31,chapter:"p4",front:"Carte d'empathie – 6 dimensions",back:"Ce qu'il <strong>dit</strong> · <strong>pense</strong> · <strong>voit</strong> · <strong>entend</strong> · <strong>fait</strong> · <strong>ressent</strong>"},
+  {id:32,chapter:"p4",front:"Inspection cognitive vs Audit ergonomique",back:"<strong>Inspection cognitive</strong> : évaluer en se mettant à la place de l'utilisateur.<br><strong>Audit ergonomique</strong> : évaluation par des experts UX/ergonomie."},
+  {id:33,chapter:"p3",front:"Modèle de la tâche – 3 éléments",back:"<strong>But</strong> : ce que l'utilisateur veut accomplir<br><strong>Procédure</strong> : ensemble de tâches organisées<br><strong>Tâche élémentaire</strong> : non décomposable (opérations E/S)"},
+  {id:34,chapter:"p3",front:"Parcours oculométriques typiques",back:"Parcours en <strong>Z</strong><br>Parcours en <strong>F</strong><br>Parcours <strong>sélectif</strong> (mots clés, boutons)"},
+  {id:35,chapter:"p3",front:"Styles UI : Skeuomorphisme vs Flat vs Material vs Fluent",back:"<strong>Skeuomorphisme</strong> : imite le réel<br><strong>Flat</strong> : minimaliste<br><strong>Material</strong> (Google) : inspiré du monde physique<br><strong>Fluent</strong> (Microsoft) : immersif et unifié"},
+  {id:36,chapter:"p3",front:"Agile + UX : Intégration (3 options)",back:"<strong>Avant sprints</strong> : vision claire mais risque de décalage tech.<br><strong>Pendant sprints</strong> : flexible, ajustement rapide mais difficile.<br><strong>Après sprints</strong> : perte de temps, modifs nécessaires."},
+  {id:37,chapter:"p3",front:"Schéma type d'écran (4 zones)",back:"1. Commandes (haut)<br>2. Sélection (côté)<br>3. Travail (centre)<br>4. Messages optionnels (bas)"},
+  {id:38,chapter:"p3",front:"Processus de Conception centrée utilisateur (3 principes)",back:"1. Prise en compte dès l'analyse<br>2. Choisir des utilisateurs représentatifs<br>3. Ne pas oublier le contexte réel d'utilisation"},
+  {id:39,chapter:"p3",front:"Modèle de l'utilisateur (3 types de données)",back:"1. <strong>Générales</strong> (âge, handicaps)<br>2. <strong>Psychologiques</strong><br>3. <strong>Liées à l'app</strong> (expert/débutant, usage quotidien/occasionnel)"},
+  {id:40,chapter:"p3",front:"Analyse de tâche (4 éléments)",back:"1. Décomposition<br>2. Ordre des actions (séquence, //)<br>3. Objectifs (buts, sous-buts)<br>4. Objets utilisés"},
+  {id:41,chapter:"p3",front:"Architecture : 1 fenêtre vs Plusieurs fenêtres",back:"<strong>1 fenêtre</strong> : utilisation espace, densité, alignement, animations.<br><strong>Plusieurs fenêtres</strong> : répartition info, User Flow, Workbench vs Série."},
+  {id:42,chapter:"p3",front:"Symboles HTA",back:"└┬┘ : Séquence<br>├┼┤ : Parallèle (Ø ordre)<br>⌒ : Boucle<br>∨ : Alternative stricte (XOR)<br>∨∨ : Alternative non stricte (OR)"},
+  {id:43,chapter:"p3",front:"Agile + UX : Effets communs",back:"Process itératif · Multidisciplinarité · Collaboratif · Interactivité<br><em>US=Storytelling, Personas=Acteur, Storyboard=Étude ergonomique</em>"},
+];
 
-let cur=0, score=0, correct=0, wrong=0, skipped=0;
-let tInt=null, tLeft=TIME, answered=false;
-let dotState = Array(10).fill('');
+const EXERCISES = [
+  {id:1,chapter:"p1",diff:"easy",title:"Classer UI, UX et CX",context:"Vous travaillez sur un site e-commerce. On vous demande de préciser qui est responsable de quoi.",task:"Associez chaque domaine (UI, UX, CX) à sa responsabilité principale et donnez un exemple concret pour chaque.",hint:"UI = visuel, UX = expérience produit, CX = relation globale entreprise-client.",solution:`UI Designer → Conception visuelle et interactions directes
+Exemple : choix des couleurs des boutons, placement des menus.
 
-/* ═══ STATE MANAGEMENT (LOCAL STORAGE) ═══ */
-function saveState() {
-  const state = { cur, score, correct, wrong, skipped, dotState };
-  localStorage.setItem('arQuizState', JSON.stringify(state));
+UX Designer → Expérience globale du produit
+Exemple : parcours d'achat sans friction, clarté des étapes de commande.
+
+CX (Customer Experience) → Relation client-entreprise (avant/pendant/après)
+Exemple : email de confirmation, service après-vente, programme fidélité.
+
+// Clé : CX englobe UX qui englobe UI.`,piege:"Ne pas confondre UX (produit) et CX (entreprise). Le CX inclut tout ce qui n'est pas le produit lui-même."},
+  {id:2,chapter:"p2",diff:"med",title:"Appliquer la loi de Fitts",context:"Vous devez placer un bouton CTA (Call To Action) sur une page mobile.",task:"En vous basant sur la loi de Fitts T = I.log₂(2D/L), expliquez 3 décisions de design concrètes pour minimiser T.",hint:"Agir sur D (distance) et L (taille de la cible).",solution:`Loi de Fitts : T = I.log₂(2D/L)
+Pour minimiser T (temps d'atteinte) :
+
+1. Réduire D (distance) :
+   → Placer le bouton CTA en bas de l'écran (zone du pouce sur mobile)
+   → Éviter de placer les éléments importants en haut de grands écrans
+
+2. Augmenter L (taille de la cible) :
+   → Bouton de minimum 44×44px (recommandation Apple HIG)
+   → Augmenter la zone cliquable même si le visuel est plus petit
+
+3. Exploiter les "bords magiques" :
+   → Les bords d'écran ont une taille infinie (le curseur s'arrête)
+   → Placer des éléments importants sur les bords (ex: macOS Dock)`,piege:"Oublier que la loi de Fitts s'applique aussi à la souris. Sur desktop, les coins d'écran sont les cibles les plus rapides à atteindre."},
+  {id:3,chapter:"p2",diff:"easy",title:"Loi de Hick – Simplifier un menu",context:"Un site propose un menu avec 15 éléments au même niveau. Les utilisateurs se plaignent d'être perdus.",task:"Proposez une restructuration en appliquant la loi de Hick. Justifiez chaque décision.",hint:"Regrouper, hiérarchiser, supprimer le superflu.",solution:`Loi de Hick : temps de décision augmente avec le nombre de choix.
+
+PROBLÈME : 15 éléments = surcharge cognitive massive
+
+SOLUTION :
+1. Regrouper en catégories (max 5-7 catégories)
+   Ex: [Accueil] [Produits] [À propos] [Blog] [Contact]
+
+2. Utiliser des sous-menus pour les éléments secondaires
+   → Apparaissent seulement au survol/clic
+
+3. Hiérarchiser par fréquence d'usage
+   → Les éléments les plus utilisés en premier
+
+4. Supprimer les doublons et éléments peu utilisés
+   → Analyse des analytics pour identifier
+
+// Règle : limiter à 7±2 choix au même niveau (MCT)`,piege:"Ne pas tomber dans le piège inverse : trop peu de choix force trop de clics (violation du principe des 3 clics). Trouver l'équilibre."},
+  {id:4,chapter:"p3",diff:"med",title:"Créer un Persona",context:"Vous développez une app de gestion de budget pour jeunes actifs (25-35 ans).",task:"Créez un persona complet avec tous ses composants. Justifiez chaque élément.",hint:"Composants : données générales, objectifs, contraintes, motivations, freins.",solution:`PERSONA : "Sophie, 28 ans"
+
+DONNÉES GÉNÉRALES :
+- Âge : 28 ans, célibataire
+- Profession : Chargée de communication
+- Revenu : 2200€/mois
+- Tech : Utilisatrice avancée (smartphone quotidien)
+
+OBJECTIFS :
+- Suivre ses dépenses en temps réel
+- Économiser pour un voyage (objectif 6 mois)
+- Éviter les fins de mois difficiles
+
+CONTRAINTES :
+- Peu de temps : utilise l'app en transports
+- Budget limité pour les abonnements premium
+
+MOTIVATIONS :
+- Sentiment de contrôle et sécurité financière
+- Notifications de félicitations quand elle atteint ses objectifs
+
+FREINS :
+- Peur de la complexité (a abandonné 2 apps similaires)
+- Méfiance sur la sécurité des données bancaires
+
+// Ce persona N'EST PAS une personne réelle mais une synthèse de données.`,piege:"Un persona N'EST PAS inventé arbitrairement. Il doit être basé sur des données réelles (interviews, questionnaires). Sans données = persona invalide."},
+  {id:5,chapter:"p3",diff:"hard",title:"Analyser une HTA",context:"Tâche : 'Commander un pizza en ligne'",task:"Décomposez cette tâche en HTA complète. Identifiez le type d'enchaînement pour chaque groupe de sous-tâches.",hint:"Types : séquence, parallèle, alternative, boucle.",solution:`HTA : Commander une pizza en ligne
+
+0. Commander une pizza
+  1. Choisir le restaurant [Alternative non stricte]
+     1.1 Chercher par localisation
+     1.2 Filtrer par notes
+     1.3 Voir les promotions
+  2. Composer la commande [Séquence + Boucle]
+     2.1 Choisir la pizza [Alternative stricte]
+     2.2 Personnaliser les ingrédients [Suite non ordonnée]
+     2.3 Ajouter au panier
+     2.4 Boucle : ajouter d'autres articles
+  3. Valider la commande [Séquence obligatoire]
+     3.1 Vérifier le panier
+     3.2 Choisir livraison ou retrait [Alternative stricte]
+     3.3 Entrer adresse
+     3.4 Choisir paiement [Alternative stricte]
+     3.5 Confirmer
+
+// Tâche élémentaire = ne peut plus se décomposer (ex: "entrer adresse")`,piege:"Alternative STRICTE (XOR) = une seule option possible. Alternative NON STRICTE (OR) = plusieurs possibles. Ne pas les inverser."},
+  {id:6,chapter:"p4",diff:"med",title:"Construire une Carte d'Empathie",context:"Vous étudiez les utilisateurs d'une application de méditation pour salariés stressés.",task:"Remplissez une carte d'empathie complète pour cet utilisateur type. Utilisez les 6 dimensions.",hint:"Dit, Pense, Voit, Entend, Fait, Ressent.",solution:`CARTE D'EMPATHIE – Salarié stressé
+
+DIT :
+"J'ai besoin de décompresser mais je n'ai pas le temps."
+"Les apps de méditation, c'est compliqué à prendre en main."
+
+PENSE :
+Qu'il devrait prendre soin de lui mais se sent coupable de le faire au travail.
+Que la méditation c'est réservé à d'autres personnes.
+
+VOIT :
+Ses collègues également stressés · Des articles sur le burnout
+Notifications de l'app de travail qui débordent
+
+ENTEND :
+Son manager dire "on doit être plus productifs"
+Des podcasts sur le bien-être recommandés par des amis
+
+FAIT :
+Consulte l'app pendant sa pause déjeuner (5-10 min max)
+Abandonne si l'exercice dure trop longtemps
+
+RESSENT :
+Anxiété · Culpabilité · Envie de se sentir mieux
+Frustration face aux interfaces complexes`,piege:"La carte d'empathie doit être basée sur des données réelles (observation, interview), pas inventée. Chaque dimension doit être renseignée séparément."},
+  {id:7,chapter:"p4",diff:"easy",title:"Business Thinking vs Design Thinking",context:"Votre équipe doit décider comment réagir à un retour utilisateur négatif sur une fonctionnalité.",task:"Décrivez comment l'approche Business et l'approche Design Thinking traiteraient ce problème différemment.",hint:"Logique déductive vs abductive. Preuves vs What if.",solution:`PROBLÈME : Les utilisateurs abandonnent la page de paiement.
+
+BUSINESS THINKING :
+- Analyse des métriques (taux de conversion, tunnel de vente)
+- Raisonnement déductif : si taux chute à l'étape X → problème à X
+- Décision rapide : "On simplifie le formulaire de paiement"
+- Preuve requise avant action
+- Inconfort avec l'ambiguïté
+
+DESIGN THINKING :
+- Interviews utilisateurs pour comprendre le ressenti
+- Raisonnement abductif : "Et si le problème n'était pas le formulaire mais la confiance ?"
+- Exploration de plusieurs hypothèses (manque de badges sécurité ? trop d'étapes ? confusion ?)
+- Prototypage rapide de 3 solutions différentes
+- Test et itération
+
+// Idéal : combiner les deux → données quantitatives + empathie qualitative`,piege:"Design Thinking n'est PAS opposé au Business Thinking. Les deux sont complémentaires. Ne pas présenter l'un comme supérieur à l'autre."},
+  {id:8,chapter:"p3",diff:"hard",title:"Choisir la bonne démarche de conception",context:"Vous devez refondre une interface bancaire complexe avec des contraintes de temps strictes.",task:"Comparez les démarches itérative, incrémentale et mixte. Recommandez la plus adaptée et justifiez.",hint:"Itératif = toute l'interface. Incrémental = zone par zone. Mixte = les deux.",solution:`DÉMARCHE ITÉRATIVE :
++ Amélioration progressive de toute l'interface
++ Prend en compte de nouveaux objectifs
+- Risque si tout est à refaire simultanément
+- Peut être long avant une livraison partielle
+
+DÉMARCHE INCRÉMENTALE :
++ Livraisons partielles rapides (fonctionnel zone par zone)
++ Retours précoces des utilisateurs
+- Une zone peut influencer une autre non encore développée
+- Vision globale moins cohérente
+
+DÉMARCHE MIXTE (recommandée) :
+→ Découper l'interface en zones critiques (incrément)
+→ Itérer sur chaque incrément (prototype → évaluation → amélioration)
+→ Livraisons régulières tout en maintenant la qualité
+
+POUR UNE BANQUE :
+- Incrément 1 : Page d'authentification (critique, sécurisée)
+- Incrément 2 : Tableau de bord principal
+- Itération sur chaque incrément avec tests utilisateurs`,piege:"Ne pas confondre itération (améliorer ce qui existe) avec incrément (ajouter quelque chose de nouveau). On peut itérer sur un incrément."},
+  {id:9,chapter:"p2",diff:"med",title:"MCT et conception d'interface",context:"Vous concevez un formulaire d'inscription avec 12 champs.",task:"Comment la connaissance de la MCT doit-elle influencer la conception de ce formulaire ? Proposez 3 principes concrets.",hint:"MCT = 7±3 items, 15-30 sec d'oubli, accès séquentiel.",solution:`MCT : 7±3 items · oubli en 15-30 sec · accès séquentiel
+
+PRINCIPE 1 : Chunking (regroupement)
+→ Regrouper les 12 champs en étapes thématiques
+Ex : Étape 1 "Identité" (3 champs) · Étape 2 "Contact" (3 champs) · Étape 3 "Sécurité" (3 champs)
+→ Jamais plus de 7 éléments visibles simultanément
+
+PRINCIPE 2 : Feedback immédiat
+→ Valider chaque champ en temps réel (avant la soumission)
+→ L'utilisateur ne peut pas mémoriser les erreurs à corriger plus tard
+
+PRINCIPE 3 : Auto-complétion et réduction de la charge
+→ Pré-remplir les champs connus (localisation, suggestions)
+→ Éviter que l'utilisateur mémorise des infos entre étapes
+→ Afficher les critères de mot de passe directement à côté du champ`,piege:"L'accès à la MCT est SÉQUENTIEL : l'utilisateur doit parcourir les items dans l'ordre. Ne pas présenter des listes non ordonnées d'éléments critiques."},
+  {id:10,chapter:"p4",diff:"hard",title:"Conduire une interview UX",context:"Vous préparez une session d'interview pour comprendre les besoins des utilisateurs d'une app de transport.",task:"Rédigez 5 questions d'interview respectant les bonnes pratiques UX. Expliquez le type de chaque question.",hint:"Questions semi-directives, neutres, reformulation, analyse qualitative.",solution:`BONNES PRATIQUES : individuel, face à face, <1h, neutre, semi-directif
+
+QUESTION 1 (ouverte/exploratoire) :
+"Pouvez-vous me décrire la dernière fois que vous avez utilisé une app de transport ?"
+→ Obtenir un récit naturel sans orienter
+
+QUESTION 2 (comportementale) :
+"Qu'est-ce que vous faites habituellement quand vous cherchez un trajet urgent ?"
+→ Comprendre les comportements réels, pas les intentions
+
+QUESTION 3 (problème/friction) :
+"Y a-t-il des moments où cette app vous a frustré ou déçu ? Pouvez-vous me raconter ?"
+→ Identifier les points de douleur
+
+QUESTION 4 (motivation) :
+"Qu'est-ce qui vous ferait préférer une app plutôt qu'une autre pour vos trajets ?"
+→ Identifier les motivations profondes
+
+QUESTION 5 (reformulation) :
+"Si je comprends bien, vous dites que... Est-ce exact ?"
+→ Valider la compréhension, éviter les malentendus
+
+// À ÉVITER : questions fermées (oui/non), suggestives ("ne trouvez-vous pas que..."), doubles (deux questions en une)`,piege:"Une interview N'EST PAS un questionnaire. Elle est qualitative, subjective, et doit explorer en profondeur. Ne jamais orienter les réponses."},
+  {id:11,chapter:"p1",diff:"easy",title:"Identifier les rôles dans une équipe",context:"Une startup tech recrute pour son équipe produit.",task:"Distinguez clairement les rôles : Web developer, Designer, UI Designer, UX Designer. Donnez 2 responsabilités concrètes pour chacun.",hint:"Chaque rôle a une spécialisation distincte.",solution:`WEB DEVELOPER :
+1. Développer les fonctionnalités front/back (HTML, CSS, JS, API)
+2. Assurer la performance et la compatibilité du code
+
+DESIGNER :
+1. Créer l'apparence visuelle de la solution digitale
+2. Définir la charte graphique et les éléments visuels
+
+UI DESIGNER :
+1. Concevoir l'interface (grilles, typographie, icônes, couleurs, boutons)
+2. Optimiser les parcours et la clarté de navigation
+
+UX DESIGNER :
+1. Insérer des scénarios d'usage et étudier les émotions
+2. Analyser et répondre aux besoins (accessibilité, crédibilité, productivité)
+
+// Règle : UI Designer = conception. UX Designer = expérience. Les deux collaborent étroitement.`,piege:"UI ≠ UX. Un UI Designer peut faire un beau design mais mauvaise UX. Un UX Designer sans UI peut avoir une bonne expérience mais un interface peu attrayante."},
+  {id:12,chapter:"p3",diff:"med",title:"Types de veille stratégique",context:"Une entreprise lance une nouvelle application de livraison alimentaire.",task:"Pour chaque type de veille, identifiez 2 informations concrètes à collecter pour ce projet.",hint:"5 types : concurrentielle, commerciale, réglementaire, e-réputation, technologique.",solution:`VEILLE CONCURRENTIELLE :
+- Prix pratiqués par Uber Eats, Deliveroo, etc.
+- Fonctionnalités différenciantes des concurrents directs
+
+VEILLE COMMERCIALE :
+- Habitudes de commande (heure, fréquence, panier moyen)
+- Tendances : végétarien, alimentation saine, local
+
+VEILLE RÉGLEMENTAIRE :
+- Réglementation sur les données personnelles (RGPD)
+- Lois sur le statut des livreurs (travailleurs indépendants)
+
+VEILLE E-RÉPUTATION :
+- Avis Google/Trustpilot des concurrents
+- Commentaires sur les réseaux sociaux sur l'expérience de livraison
+
+VEILLE TECHNOLOGIQUE :
+- Nouveaux systèmes de géolocalisation en temps réel
+- IA pour optimisation des itinéraires`,piege:"La veille stratégique n'est pas ponctuelle. C'est un PROCESSUS CONTINU. Ne pas confondre veille avec étude de marché (ponctuelle)."},
+  {id:13,chapter:"p4",diff:"hard",title:"Planifier une session de brainstorming",context:"Vous organisez un brainstorming pour trouver des fonctionnalités pour une app de covoiturage.",task:"Décrivez comment organiser cette session en suivant les bonnes pratiques UX. Incluez les règles, le déroulement et les livrables.",hint:"Petit groupe, profils différents, <1h, générer puis classifier.",solution:`ORGANISATION DU BRAINSTORMING
+
+PARTICIPANTS :
+- 5-7 personnes (pas plus → loi de Hick)
+- Profils différents : designer, dev, marketing, utilisateur réel, PM
+- Un facilitateur neutre
+
+RÈGLES (à afficher) :
+1. Pas de jugement pendant la génération
+2. Toutes les idées sont bienvenues (même folles)
+3. Construire sur les idées des autres (oui, ET...)
+4. Quantité avant qualité
+
+DÉROULEMENT (<1h) :
+- 5 min : contexte et objectif clair
+- 20 min : génération libre (post-its, tous en parallèle)
+- 15 min : lecture et clustering (regroupement thématique)
+- 15 min : vote et priorisation (dot voting)
+
+LIVRABLES :
+- Carte des idées organisées par thème
+- Top 3 idées prioritaires à prototyper
+- Liste complète archivée (pour référence future)`,piege:"Le brainstorming ne produit PAS des solutions finales. Il génère des pistes à prototyper et tester. Les idées non retenues ne sont pas mauvaises, juste déprioritisées."},
+  {id:14,chapter:"p3",diff:"easy",title:"Sketch vs Wireframe vs Prototype",context:"Un chef de projet vous demande de 'faire un prototype' de la page d'accueil.",task:"Clarifiez les 3 étapes. Quand utiliser chacune ? Quelle est la différence entre Mockup et Wireframe ?",hint:"Sketch = grossier, Wireframe = détaillé sans design, Mockup = avec design, Prototype = interactif.",solution:`1. SKETCH (Croquis) :
+   - Dessin à la main, 5-10 minutes
+   - Objectif : aperçu global, idée générale
+   - Usage : toute première étape, exploration libre
+   - Pas de détails, pas d'interaction
+
+2. WIREFRAME :
+   - Représentation détaillée SANS design graphique
+   - Contenu fictif (Lorem ipsum, images grises)
+   - SANS couleurs, SANS design
+   - Objectif : présenter l'organisation spécifique des éléments
+   
+3. MOCKUP :
+   - Wireframe + design graphique appliqué
+   - Couleurs, typographies, images réelles
+   - PAS interactif (image statique du produit final)
+
+4. PROTOTYPE :
+   - Version fonctionnelle mais incomplète
+   - Interactif (on peut cliquer, naviguer)
+   - Objectif : tester, valider, attirer investisseurs
+
+ORDRE : Sketch → Wireframe → Mockup → Prototype`,piege:"Mockup ≠ Prototype. Le mockup est statique (on voit), le prototype est interactif (on utilise). Souvent confondus dans le langage courant."},
+  {id:15,chapter:"p4",diff:"med",title:"Évaluer une interface par inspection cognitive",context:"Vous évaluez une nouvelle fonctionnalité d'un site de réservation de voyages.",task:"Décrivez la démarche d'inspection cognitive en 4 questions clés. Appliquez-les à la tâche 'réserver un vol'.",hint:"Se mettre à la place de l'utilisateur. Vérifier chaque étape.",solution:`INSPECTION COGNITIVE : évaluer en se mettant à la place de l'utilisateur
+
+4 QUESTIONS CLÉS pour chaque étape :
+Q1 : L'utilisateur essaiera-t-il d'atteindre le bon effet ?
+Q2 : Verra-t-il l'action disponible (bouton, lien) ?
+Q3 : Comprendra-t-il que l'action est correcte ?
+Q4 : Recevra-t-il un feedback adéquat après l'action ?
+
+APPLICATION : "Réserver un vol"
+
+Étape 1 : Saisir la destination
+Q1 : L'utilisateur cherche-t-il un champ de recherche ? ✓
+Q2 : Le champ est-il visible ? ✓ (si bien placé)
+Q3 : Le label "Destination" est-il clair ? À vérifier
+Q4 : L'autocomplétion confirme-t-elle la saisie ? À vérifier
+
+Étape 2 : Sélectionner les dates
+Q1 : L'utilisateur cherche un calendrier ? ✓
+Q2 : L'icône calendrier est-elle visible ? À vérifier
+Q3 : Le format de date est-il clair (JJ/MM vs MM/JJ) ? Risque !
+Q4 : La date sélectionnée est-elle confirmée visuellement ? À vérifier`,piege:"L'inspection cognitive est réalisée PAR UN EXPERT, pas par l'utilisateur. Ne pas la confondre avec un test utilisateur (où c'est l'utilisateur qui teste)."},
+  {id:16,chapter:"p3",diff:"med",title:"Schéma d'écran & Architecture",context:"Vous concevez une application de retouche photo professionnelle sur desktop.",task:"Choisiriez-vous une architecture en série ou en Workbench ? Justifiez en utilisant le vocabulaire du cours.",hint:"Workbench = tout visible. Série = étape par étape.",solution:`Choix : WORKBENCH
+Car l'utilisateur a besoin d'avoir accès simultanément à :
+1. Zone de travail (la photo au centre)
+2. Zone de commandes (outils, filtres en haut/côtés)
+3. Zone de sélection (calques, historique)
+Une utilisation en série (étape par étape) n'est pas adaptée pour la création graphique où l'on effectue des va-et-vient constants.`,piege:"Le mode série est adapté pour des processus linéaires (paiement, assistant d'installation). Workbench est idéal pour la productivité."},
+  {id:17,chapter:"p3",diff:"easy",title:"Styles de Design UI",context:"On vous demande de refondre une vieille application en lui donnant un style moderne, qui unifie l'expérience sur Windows, ou bien en utilisant les guidelines de Google.",task:"Associez les termes 'Material Design', 'Fluent Design', 'Flat' et 'Skeuomorphisme' à leurs définitions.",hint:"Google, Microsoft, Imite le réel, Minimaliste.",solution:`1. Material Design → Google (inspiré du monde physique, ombres, règles)
+2. Fluent Design → Microsoft (expérience immersive et dynamique)
+3. Flat Design → Minimaliste (pas de 3D, pas d'ombres complexes)
+4. Skeuomorphisme → Imite le monde réel (cuir, métal, reliefs purs)`,piege:"Ne pas confondre Material (qui a des ombres et de la profondeur de base) avec le Flat (qui est totalement plat)."},
+];
+
+const TRAPS = [
+  {id:1,cat:"confusion",sev:"high",chapter:"p1",wrong:"UI et UX sont la même chose.",correct:"UI = interface visuelle et interactions directes. UX = expérience globale du produit. L'UI est une composante de l'UX.",why:"Les deux termes sont souvent utilisés ensemble (UI/UX) ce qui crée la confusion. L'UX englobe bien plus que la simple interface."},
+  {id:2,cat:"confusion",sev:"high",chapter:"p1",wrong:"L'approche technocentrée est meilleure car elle exploite toutes les capacités techniques.",correct:"L'approche anthropocentrée est la bonne pratique : l'humain d'abord, la machine s'adapte.",why:"Le cours met clairement l'approche anthropocentrée comme la logique utilisateur correcte. Technocentrée = logique système (problématique)."},
+  {id:3,cat:"erreur",sev:"high",chapter:"p3",wrong:"Un persona est un utilisateur réel interviewé.",correct:"Un persona est une REPRÉSENTATION FICTIVE basée sur des caractéristiques fréquentes observées chez plusieurs utilisateurs réels.",why:"Le cours insiste : 'ce n'est pas réel'. C'est une synthèse de données réelles, pas une personne réelle."},
+  {id:4,cat:"confusion",sev:"high",chapter:"p3",wrong:"Journey Map = User Flow = Task Flow, ils décrivent tous le parcours utilisateur.",correct:"Journey Map = comment il VIVE l'expérience. User Flow = TOUS les chemins possibles. Task Flow = chemin IDÉAL pour une tâche précise.",why:"Trois outils différents avec des objectifs distincts. Le cours les définit clairement séparément."},
+  {id:5,cat:"exception",sev:"med",chapter:"p2",wrong:"La loi de Fitts s'applique uniquement aux grandes cibles.",correct:"La loi est universelle. Une PETITE cible LOIN est le pire cas. Une GRANDE cible PROCHE est le meilleur cas.",why:"La formule T = I.log₂(2D/L) montre que les deux variables (D et L) influencent le temps. Ignorer l'une fausse l'analyse."},
+  {id:6,cat:"confusion",sev:"high",chapter:"p2",wrong:"Interférence proactive = nouvelle info bloque l'ancienne.",correct:"Interférence proactive = ANCIENNE info bloque la NOUVELLE. Rétroactive = NOUVELLE bloque l'ANCIENNE.",why:"'Pro' = vers l'avant (l'ancienne agit sur la nouvelle). 'Rétro' = vers l'arrière (la nouvelle agit sur l'ancienne). Inversé fréquemment."},
+  {id:7,cat:"erreur",sev:"high",chapter:"p2",wrong:"La MCT peut stocker environ 20-30 items.",correct:"MCT = 7±3 items (certains disent 7±2). Oubli en 15 à 30 secondes.",why:"Loi de Miller : 7±2 items est la capacité de la mémoire à court terme. Le cours dit 7±3."},
+  {id:8,cat:"confusion",sev:"med",chapter:"p3",wrong:"Itératif = zone par zone. Incrémental = toute l'interface à la fois.",correct:"Itératif = travail sur TOUTE l'interface, cycles répétés. Incrémental = une ZONE à la fois jusqu'à satisfaction.",why:"C'est exactement l'inverse de ce que les étudiants pensent intuitivement."},
+  {id:9,cat:"confusion",sev:"high",chapter:"p3",wrong:"Un Mockup est un prototype interactif.",correct:"Un Mockup est STATIQUE (représentation visuelle finale sans interaction). Le prototype est INTERACTIF.",why:"Mockup = on voit. Prototype = on utilise. Souvent confondus dans le langage courant."},
+  {id:10,cat:"erreur",sev:"med",chapter:"p3",wrong:"Le Zoning vient avant l'arborescence.",correct:"Le Zoning vient APRÈS l'arborescence pour présenter une première organisation grossière.",why:"Le cours précise : 'Après l'arborescence, voir une première organisation' → Zoning après arborescence."},
+  {id:11,cat:"confusion",sev:"high",chapter:"p3",wrong:"Alternative stricte en HTA = OU inclusif (plusieurs options possibles).",correct:"Alternative STRICTE = OU exclusif (XOR) : UNE SEULE option possible. Non stricte = OU inclusif (plusieurs possibles).",why:"Stricte = exclut les autres options. Non stricte = les autres restent possibles. Très souvent inversé."},
+  {id:12,cat:"limite",sev:"med",chapter:"p3",wrong:"Une tâche parallèle peut avoir plusieurs tâches en cours simultanément.",correct:"Tâche PARALLÈLE = une et une seule s'exécute à un moment donné. Structure SIMULTANÉE = plusieurs en même temps.",why:"Parallèle ≠ simultané dans la terminologie HTA. La structure simultanée nécessite des multi-opérateurs."},
+  {id:13,cat:"confusion",sev:"med",chapter:"p4",wrong:"Design Thinking = 5 étapes linéaires à suivre dans l'ordre.",correct:"Les 5 étapes du Design Thinking (Empathie → Définition → Idéation → Prototype → Test) sont CYCLIQUES, pas linéaires.",why:"Le cours précise : 'Ces étapes ne sont pas linéaires mais plutôt cycliques'. On peut revenir en arrière à tout moment."},
+  {id:14,cat:"confusion",sev:"med",chapter:"p4",wrong:"Brainstorming et Focus Group sont la même chose.",correct:"Brainstorming = générer des idées (petit groupe, <1h, profils différents). Focus group = discussion pour comprendre opinions (7-10 personnes, 1-2h).",why:"Objectifs différents : brainstorming = idées. Focus group = compréhension des opinions."},
+  {id:15,cat:"confusion",sev:"high",chapter:"p4",wrong:"Inspection cognitive = test utilisateur.",correct:"Inspection cognitive = évaluation par un EXPERT se mettant à la place de l'utilisateur. Test utilisateur = l'UTILISATEUR teste.",why:"L'expert simule le comportement, l'utilisateur le produit réellement. Deux méthodes d'évaluation différentes."},
+  {id:16,cat:"exception",sev:"high",chapter:"p1",wrong:"Multimédia et Multimodalité sont synonymes.",correct:"Multimédia = combinaison de TYPES DE DONNÉES (texte, image, son...). Multimodalité = types d'INTERACTION (clavier, voix, geste...).",why:"Le cours les définit séparément. Données ≠ interactions."},
+  {id:17,cat:"erreur",sev:"med",chapter:"p4",wrong:"Business Thinking est inférieur au Design Thinking.",correct:"Les deux approches sont complémentaires. Business = logique/déductif. Design = intuitif/abductif. Ni l'un ni l'autre n'est supérieur.",why:"Le cours compare les deux sans hiérarchie. Les meilleurs produits combinent les deux approches."},
+  {id:18,cat:"confusion",sev:"med",chapter:"p4",wrong:"Story Mapping = Storyboarding.",correct:"Story Mapping = comprendre le PARCOURS d'utilisation. Storyboarding = raconter l'histoire sous forme de DESSINS.",why:"Deux outils distincts avec des livrables différents. Le cours les liste séparément dans les méthodes."},
+  {id:19,cat:"limite",sev:"high",chapter:"p2",wrong:"Le principe des 2 secondes concerne le chargement de la page.",correct:"Le principe des 2 secondes concerne la RÉPONSE SYSTÈME à une action utilisateur, pas uniquement le chargement.",why:"Toute réponse système (clic, soumission, chargement) doit être sous 2 secondes pour ne pas perturber l'utilisateur."},
+  {id:20,cat:"exception",sev:"med",chapter:"p1",wrong:"IHM et Interaction Homme-Machine sont la même chose.",correct:"IHM = Interface Homme-Machine (l'objet : matériels et logiciels). Interaction Homme-Machine = la DISCIPLINE qui étudie la conception et évaluation.",why:"Le cours les distingue explicitement : l'IHM est ce qu'on conçoit, l'Interaction H-M est la discipline académique."},
+  {id:21,cat:"confusion",sev:"med",chapter:"p3",wrong:"Material Design est le design officiel de Microsoft.",correct:"Material Design = GOOGLE. Fluent Design = MICROSOFT.",why:"Ces deux 'Design Systems' majeurs sont souvent confondus par les étudiants. Ils appartiennent à des écosystèmes différents."},
+  {id:22,cat:"limite",sev:"high",chapter:"p3",wrong:"L'UX doit toujours se faire après le développement en Agile.",correct:"L'UX après les sprints entraîne une perte de temps et des modifications inutiles. L'idéal est PENDANT ou AVANT.",why:"Faire l'UX après le dev casse le principe de l'agilité et de la conception centrée utilisateur. C'est l'option la moins recommandée."},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = JSON.parse(localStorage.getItem('uiux_state') || 'null') || {
+  answered: {}, // id -> {selected, correct}
+  bookmarked: {},
+  fcStates: {}, // id -> 'review'|'medium'|'mastered'
+  exCompleted: {},
+  currentQ: 0,
+  currentFC: 0,
+  mode: 'all',
+  fcMode: 'all',
+  fcChapter: 'all',
+  quizDone: false,
+  timerActive: false,
+  timerSeconds: 0,
+};
+let currentPool = [];
+let timerInterval = null;
+let fcPool = [];
+let fcIdx = 0;
+
+function saveState(){localStorage.setItem('uiux_state', JSON.stringify(state));}
+
+// ============================================================
+// TAB ROUTER
+// ============================================================
+function switchTab(name, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='qcm') renderDashboard();
+  if(name==='flashcards') renderFC();
+  if(name==='cheatsheet') renderCS();
+  if(name==='traps') renderTraps();
+  if(name==='exercises') renderExercises();
 }
 
-function loadState() {
-  const saved = localStorage.getItem('arQuizState');
-  if (saved) {
-    const state = JSON.parse(saved);
-    cur = state.cur;
-    score = state.score;
-    correct = state.correct;
-    wrong = state.wrong;
-    skipped = state.skipped;
-    dotState = state.dotState;
-    return true;
+// Scroll progress
+window.addEventListener('scroll',()=>{
+  const pct = window.scrollY/(document.body.scrollHeight-window.innerHeight)*100;
+  document.getElementById('scroll-bar').style.width=pct+'%';
+});
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard(){
+  const total = QUESTIONS.length;
+  const answered = Object.keys(state.answered).length;
+  const correct = Object.values(state.answered).filter(a=>a.correct).length;
+  const wrong = answered - correct;
+  const mastered = Object.values(state.fcStates).filter(s=>s==='mastered').length;
+  const pct = answered ? Math.round(correct/total*100) : 0;
+  document.getElementById('dashboard').innerHTML=`
+    <div class="dash-card"><div class="dval">${answered}/${total}</div><div class="dlbl">Questions répondues</div><div class="progress-bar"><div class="progress-fill" style="width:${answered/total*100}%"></div></div></div>
+    <div class="dash-card"><div class="dval" style="color:var(--success)">${correct}</div><div class="dlbl">Correctes</div></div>
+    <div class="dash-card"><div class="dval" style="color:var(--danger)">${wrong}</div><div class="dlbl">Erreurs</div></div>
+    <div class="dash-card"><div class="dval" style="color:var(--warning)">${pct}%</div><div class="dlbl">Score global</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:var(--warning)"></div></div></div>
+    <div class="dash-card"><div class="dval" style="color:var(--secondary)">${mastered}/${FLASHCARDS.length}</div><div class="dlbl">Flashcards maîtrisées</div></div>
+  `;
+}
+
+// ============================================================
+// QCM ENGINE
+// ============================================================
+function setMode(mode, btn){
+  state.mode = mode;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(mode==='timed' && !state.timerActive){
+    state.timerSeconds = 0;
+    state.timerActive = true;
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(()=>{state.timerSeconds++;renderTimer();},1000);
+  } else if(mode!=='timed'){
+    state.timerActive = false;
+    if(timerInterval) clearInterval(timerInterval);
   }
-  return false;
+  buildPool();
+  renderQCM();
 }
 
-function clearState() {
-  localStorage.removeItem('arQuizState');
+function renderTimer(){
+  const t = document.getElementById('timer-display');
+  if(t){const m=Math.floor(state.timerSeconds/60),s=state.timerSeconds%60;t.textContent=`${m}:${s<10?'0'+s:s}`;}
 }
 
-// Check for saved state on load to update the launch button
-window.addEventListener('DOMContentLoaded', () => {
-  if (localStorage.getItem('arQuizState')) {
-    document.getElementById('btn-launch').textContent = 'RESUME SESSION';
+function buildPool(){
+  let pool = [...QUESTIONS];
+  if(state.mode==='weak'){
+    const weakChapters = getWeakChapters();
+    if(weakChapters.length) pool = pool.filter(q=>weakChapters.includes(q.chapter));
+  }
+  if(state.mode==='random'||state.mode==='timed'){
+    pool = pool.sort(()=>Math.random()-.5);
+  }
+  currentPool = pool;
+}
+
+function getWeakChapters(){
+  const scores = {};
+  const totals = {};
+  QUESTIONS.forEach(q=>{
+    if(!totals[q.chapter]) totals[q.chapter]=0;
+    totals[q.chapter]++;
+    if(state.answered[q.id]){
+      if(!scores[q.chapter]) scores[q.chapter]=0;
+      if(state.answered[q.id].correct) scores[q.chapter]++;
+    }
+  });
+  return Object.entries(totals).filter(([ch,t])=>{
+    const s = scores[ch]||0;
+    return s/t < 0.6;
+  }).map(([ch])=>ch);
+}
+
+function renderQCM(){
+  renderDashboard();
+  const container = document.getElementById('qcm-inner');
+  if(!currentPool.length) buildPool();
+  
+  let html = '';
+  if(state.mode==='timed') html += `<div class="timer-display" id="timer-display">${Math.floor(state.timerSeconds/60)}:${String(state.timerSeconds%60).padStart(2,'0')}</div>`;
+  
+  // Navigator
+  html += `<div class="qnav">`;
+  currentPool.forEach((q,i)=>{
+    let cls = '';
+    if(i===state.currentQ) cls='current';
+    else if(state.answered[q.id]) cls=state.answered[q.id].correct?'answered':'wrong-ans';
+    if(state.bookmarked[q.id]) cls+=' bookmarked';
+    html+=`<button class="qnum ${cls}" onclick="goTo(${i})">${i+1}</button>`;
+  });
+  html += `</div>`;
+
+  // Single question
+  const q = currentPool[state.currentQ];
+  if(!q){container.innerHTML=html+'<p style="color:var(--muted);text-align:center;padding:40px">Aucune question disponible.</p>';return;}
+  
+  const ans = state.answered[q.id];
+  const isMulti = Array.isArray(q.ans);
+  html += `<div class="qcard">
+    <div class="qmeta">
+      <span class="tag ch">${CHAPTERS[q.chapter]}</span>
+      <span class="tag ${q.diff}">${q.diff}</span>
+      ${isMulti?'<span class="tag" style="background:#1a1a2e;color:#818cf8">Choix multiples</span>':''}
+      <button class="btn sm outline" onclick="toggleBookmark(${q.id})">${state.bookmarked[q.id]?'★ Marqué':'☆ Marquer'}</button>
+    </div>
+    <div class="qtxt">${q.q}</div>
+    <div class="qoptions">`;
+  
+  q.opts.forEach((opt,i)=>{
+    let cls = '';
+    if(ans){
+      if(isMulti){
+        const isCorrect = q.ans.includes(i);
+        const wasSelected = ans.selected.includes(i);
+        if(isCorrect) cls='correct';
+        else if(wasSelected) cls='wrong';
+        cls+=' disabled';
+      } else {
+        if(i===q.ans) cls='correct';
+        else if(i===ans.selected) cls='wrong';
+        cls+=' disabled';
+      }
+    } else {
+      if(isMulti && state['pending_'+q.id] && state['pending_'+q.id].includes(i)) cls='selected';
+    }
+    html+=`<button class="qopt ${cls}" onclick="selectOpt(${q.id},${i},${isMulti})">${String.fromCharCode(65+i)}. ${opt}</button>`;
+  });
+  
+  html+='</div>';
+  if(isMulti && !ans){
+    html+=`<div style="margin-top:12px"><button class="btn sm" onclick="submitMulti(${q.id})">Valider la sélection</button></div>`;
+  }
+  
+  if(ans){
+    html+=`<div class="explanation show"><strong>${ans.correct?'✓ Correct !':'✗ Incorrect.'}</strong> ${q.expl}</div>`;
+    if(q.trap) html+=`<div class="trap-note">⚠ Piège : ${q.trap}</div>`;
+  }
+  
+  html+='</div>';
+  
+  // Navigation
+  html+=`<div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn outline" onclick="prevQ()">← Préc</button>
+    <button class="btn" onclick="nextQ()">Suiv →</button>
+    ${ans?`<button class="btn danger sm" onclick="resetQ(${q.id})">↺ Reset question</button>`:''}
+  </div>`;
+  
+  // Results if all answered
+  const answeredCount = currentPool.filter(q=>state.answered[q.id]).length;
+  if(answeredCount===currentPool.length && currentPool.length>0){
+    html += renderResults();
+  }
+  
+  container.innerHTML = html;
+  renderTimer();
+}
+
+function selectOpt(qid, idx, isMulti){
+  const q = currentPool.find(q=>q.id===qid);
+  if(!q || state.answered[qid]) return;
+  if(isMulti){
+    if(!state['pending_'+qid]) state['pending_'+qid]=[];
+    const arr = state['pending_'+qid];
+    const i = arr.indexOf(idx);
+    if(i>=0) arr.splice(i,1); else arr.push(idx);
+    renderQCM();
+  } else {
+    const correct = idx===q.ans;
+    state.answered[qid]={selected:idx,correct};
+    saveState();
+    renderQCM();
+  }
+}
+
+function submitMulti(qid){
+  const q = QUESTIONS.find(q=>q.id===qid);
+  const sel = state['pending_'+qid]||[];
+  const correct = JSON.stringify([...q.ans].sort())===JSON.stringify([...sel].sort());
+  state.answered[qid]={selected:sel,correct};
+  saveState();
+  renderQCM();
+}
+
+function goTo(i){state.currentQ=i;renderQCM();}
+function nextQ(){state.currentQ=Math.min(state.currentQ+1,currentPool.length-1);renderQCM();}
+function prevQ(){state.currentQ=Math.max(state.currentQ-1,0);renderQCM();}
+function toggleBookmark(id){state.bookmarked[id]=!state.bookmarked[id];saveState();renderQCM();}
+function resetQ(id){delete state.answered[id];saveState();renderQCM();}
+function resetQuiz(){state.answered={};state.bookmarked={};state.currentQ=0;saveState();buildPool();renderQCM();}
+function retryWrong(){
+  currentPool=QUESTIONS.filter(q=>state.answered[q.id]&&!state.answered[q.id].correct);
+  const ids=currentPool.map(q=>q.id);
+  ids.forEach(id=>delete state.answered[id]);
+  state.currentQ=0;
+  saveState();
+  renderQCM();
+}
+
+function renderResults(){
+  const correct = currentPool.filter(q=>state.answered[q.id]?.correct).length;
+  const total = currentPool.length;
+  const pct = Math.round(correct/total*100);
+  
+  const byChapter = {};
+  currentPool.forEach(q=>{
+    if(!byChapter[q.chapter]) byChapter[q.chapter]={c:0,t:0};
+    byChapter[q.chapter].t++;
+    if(state.answered[q.id]?.correct) byChapter[q.chapter].c++;
+  });
+  
+  let chHtml = '';
+  Object.entries(byChapter).forEach(([ch,{c,t}])=>{
+    const p=Math.round(c/t*100);
+    chHtml+=`<div class="ch-score"><div class="chn">${CHAPTERS[ch]}</div><div class="chv">${p}%</div><div style="font-size:11px;color:var(--muted)">${c}/${t}</div></div>`;
+  });
+  
+  const wrongList = currentPool.filter(q=>state.answered[q.id]&&!state.answered[q.id].correct);
+  let wrongHtml = wrongList.map(q=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><strong style="color:var(--danger)">✗</strong> ${q.q}<br><span style="color:var(--muted);font-size:11px">${q.expl}</span></div>`).join('');
+  
+  return `<div class="results-wrap" style="margin-top:24px">
+    <div class="score-big">${pct}%</div>
+    <div class="score-label">${correct} / ${total} correctes</div>
+    <div class="per-chapter">${chHtml}</div>
+    ${wrongList.length?`<div><h3 style="font-size:13px;margin-bottom:12px;color:var(--danger)">Questions incorrectes :</h3>${wrongHtml}</div>`:'<p style="color:var(--success);text-align:center">✓ Toutes les questions correctes !</p>'}
+    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" onclick="retryWrong()">↺ Réessayer les erreurs</button>
+      <button class="btn outline" onclick="resetQuiz()">Tout réinitialiser</button>
+    </div>
+  </div>`;
+}
+
+function exportWrong(){
+  const wrong = QUESTIONS.filter(q=>state.answered[q.id]&&!state.answered[q.id].correct);
+  const txt = wrong.map(q=>`Q: ${q.q}\nA: ${q.opts[q.ans]}\nExpl: ${q.expl}\n`).join('\n---\n');
+  const blob = new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='erreurs_uiux.txt';a.click();
+}
+
+// ============================================================
+// EXERCISES
+// ============================================================
+function renderExercises(){
+  let html = '';
+  EXERCISES.forEach(ex=>{
+    const done = state.exCompleted[ex.id];
+    html+=`<div class="excard" id="ex-${ex.id}">
+      <div class="qmeta" style="margin-bottom:10px">
+        <span class="tag ch">${CHAPTERS[ex.chapter]}</span>
+        <span class="tag ${ex.diff}">${ex.diff}</span>
+        ${done?'<span class="tag" style="background:#0f2a1a;color:var(--success)">✓ Complété</span>':''}
+      </div>
+      <h3>${ex.id}. ${ex.title}</h3>
+      <div class="context">${ex.context}</div>
+      <div class="task">🎯 <strong>Tâche :</strong> ${ex.task}</div>
+      <textarea placeholder="Votre réponse ici..." rows="5"></textarea>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn sm outline" onclick="toggleHint(${ex.id})">💡 Indice</button>
+        <button class="btn sm outline" onclick="toggleSol(${ex.id})">👁 Solution</button>
+        <button class="btn sm ${done?'success':'outline'}" onclick="markEx(${ex.id})">${done?'✓ Complété':'Marquer complet'}</button>
+      </div>
+      <div class="hint-box" id="hint-${ex.id}">💡 <strong>Indice :</strong> ${ex.hint}</div>
+      <div class="piege">⚠ <strong>Piège à éviter :</strong> ${ex.piege}</div>
+      <div class="solution" id="sol-${ex.id}">
+        <h4 style="font-size:12px;color:var(--success);margin-bottom:8px">✓ Solution commentée :</h4>
+        <div class="solution-block">${ex.solution}</div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('exercises-inner').innerHTML=html;
+}
+
+function toggleHint(id){const h=document.getElementById('hint-'+id);h.classList.toggle('show');}
+function toggleSol(id){const s=document.getElementById('sol-'+id);s.classList.toggle('show');}
+function markEx(id){state.exCompleted[id]=!state.exCompleted[id];saveState();renderExercises();}
+function markAllEx(){EXERCISES.forEach(e=>state.exCompleted[e.id]=true);saveState();renderExercises();}
+function resetEx(){state.exCompleted={};saveState();renderExercises();}
+
+// ============================================================
+// FLASHCARDS
+// ============================================================
+function buildFCPool(){
+  let pool = [...FLASHCARDS];
+  if(state.fcChapter!=='all') pool=pool.filter(f=>f.chapter===state.fcChapter);
+  if(state.fcMode==='review') pool=pool.filter(f=>state.fcStates[f.id]==='review'||!state.fcStates[f.id]);
+  if(state.fcMode==='mastered') pool=pool.filter(f=>state.fcStates[f.id]==='mastered');
+  fcPool = pool;
+  if(fcIdx>=fcPool.length) fcIdx=0;
+}
+
+function renderFC(){
+  // Populate chapter filter
+  const sel = document.getElementById('fc-chapter-filter');
+  if(sel.options.length<=1){
+    Object.entries(CHAPTERS).forEach(([k,v])=>{
+      const o=document.createElement('option');o.value=k;o.textContent=v;sel.appendChild(o);
+    });
+  }
+  buildFCPool();
+  updateFCCard();
+  updateFCProgress();
+}
+
+function updateFCCard(){
+  const card = document.getElementById('fc-card');
+  const f = fcPool[fcIdx];
+  if(!f){
+    document.getElementById('fc-front-txt').textContent='Aucune carte dans ce mode.';
+    document.getElementById('fc-back-txt').innerHTML='';
+    document.getElementById('fc-count').textContent='0/0';
+    return;
+  }
+  card.classList.remove('flipped');
+  document.getElementById('fc-front-txt').innerHTML=f.front;
+  document.getElementById('fc-back-txt').innerHTML=f.back;
+  document.getElementById('fc-count').textContent=`${fcIdx+1}/${fcPool.length}`;
+  const st=state.fcStates[f.id];
+  const colors={'review':'var(--warning)','medium':'var(--secondary)','mastered':'var(--success)'};
+  card.style.borderColor=st?colors[st]:'var(--border)';
+}
+
+function updateFCProgress(){
+  const review=FLASHCARDS.filter(f=>state.fcStates[f.id]==='review').length;
+  const medium=FLASHCARDS.filter(f=>state.fcStates[f.id]==='medium').length;
+  const mastered=FLASHCARDS.filter(f=>state.fcStates[f.id]==='mastered').length;
+  document.getElementById('fc-progress').innerHTML=`
+    <span>🔁 À revoir : <strong style="color:var(--warning)">${review}</strong></span>
+    <span>〜 Moyen : <strong style="color:var(--secondary)">${medium}</strong></span>
+    <span>✓ Maîtrisé : <strong style="color:var(--success)">${mastered}</strong></span>
+  `;
+}
+
+function flipCard(){document.getElementById('fc-card').classList.toggle('flipped');}
+function nextFC(){fcIdx=(fcIdx+1)%Math.max(fcPool.length,1);updateFCCard();}
+function prevFC(){fcIdx=(fcIdx-1+Math.max(fcPool.length,1))%Math.max(fcPool.length,1);updateFCCard();}
+function shuffleFC(){fcPool.sort(()=>Math.random()-.5);fcIdx=0;updateFCCard();}
+function filterFCChapter(val){state.fcChapter=val;buildFCPool();fcIdx=0;updateFCCard();}
+function setFCMode(mode){state.fcMode=mode;buildFCPool();fcIdx=0;updateFCCard();}
+function setFCState(st){
+  const f=fcPool[fcIdx];
+  if(!f) return;
+  state.fcStates[f.id]=st;
+  saveState();
+  updateFCCard();
+  updateFCProgress();
+}
+function exportFC(){
+  const review=FLASHCARDS.filter(f=>state.fcStates[f.id]==='review'||!state.fcStates[f.id]);
+  const txt=review.map(f=>`Q: ${f.front}\nA: ${f.back.replace(/<[^>]+>/g,' ')}\n`).join('\n---\n');
+  const blob=new Blob([txt],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='flashcards_a_revoir.txt';a.click();
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('tab-flashcards').classList.contains('active')){
+    if(e.key==='ArrowRight') nextFC();
+    if(e.key==='ArrowLeft') prevFC();
+    if(e.key===' '){e.preventDefault();flipCard();}
   }
 });
 
-/* ═══ CORE LOGIC ═══ */
-function show(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+// ============================================================
+// CHEAT SHEET
+// ============================================================
+const CS_DATA = [
+  {id:'p1',title:'Intro UI/UX – Définitions',items:[
+    {h:'UI / UX / CX',p:'UI : interface visuelle et interactions directes. UX : expérience globale du produit. CX : expérience client-entreprise (avant/pendant/après).'},
+    {h:'IHM vs Interaction H-M',p:'IHM = Interface Homme-Machine (matériels et logiciels). Interaction Homme-Machine = discipline (conception, évaluation, mise en œuvre des SI).'},
+    {h:'Approches de conception',p:'Technocentrée : machine d\'abord → logique système. Anthropocentrée : humain d\'abord → logique utilisateur.'},
+    {h:'Thèmes humains H1/H2/H3',p:'H1 = traitement de l\'information. H2 = langage/communication. H3 = ergonomie physique/physiologique.'},
+    {h:'Thèmes techniques C1–C5',p:'C1 = devices E/S · C2 = dialogue technique · C3 = concepts abstraits · C4 = représentation graphique · C5 = architecture dialogue'},
+    {h:'7 critères UX Design',p:'Utile · Trouvable (SEO) · Utilisable · Désirable · Navigable · Accessible · Crédible'},
+    {h:'3 piliers UX Design',p:'Humain (attractif) + Tech (réalisable) + Marketing (durable)'},
+    {h:'Réalités',p:'Augmentée = réel+virtuel. Virtuelle = simulation. Diminuée = suppression. Multimédia = types de données. Multimodalité = types d\'interaction.'},
+    {h:'Rôles',p:'Web dev = code. Designer = apparence. UI Designer = interface, navigation. UX Designer = scénarios, émotions, besoins.'},
+  ]},
+  {id:'p2',title:'Ergonomie & Lois UX',items:[
+    {h:'Loi de Fitts',p:'T = I·log₂(2D/L). D↑ (distance) → T↑. L↓ (taille cible) → T↑. Optimiser : cibles grandes et proches.'},
+    {h:'Loi de Hick',p:'Temps de décision augmente avec le nombre et la complexité des choix. → Limiter les options, messages concis.'},
+    {h:'MCT',p:'7±3 items · Oubli en 15-30 sec · Accès séquentiel · Regroupement par motifs'},
+    {h:'MLT',p:'Capacité infinie · Accès associatif · Durée illimitée'},
+    {h:'Types d\'oubli',p:'Encodage · Récupération · Stockage · Interférence proactive (ancienne→nouvelle) · Rétroactive (nouvelle→ancienne) · Discrimination'},
+    {h:'Système moteur',p:'Cycle = 70 ms. Micro-mouvements discrets.'},
+    {h:'Principe des 2 secondes',p:'Réponse système ≤ 2 sec. Sinon : utilisateur relance, bug perçu.'},
+    {h:'Principe des 3 clics',p:'Information accessible en 3 clics max. Sinon : abandon.'},
+    {h:'Loi de Gestalt',p:'Cerveau = ensemble organisé. Principes : Proximité · Similarité · Continuité · Fermeture · Symétrie · Région'},
+    {h:'Ergonomie cognitive',p:'Fonctionnement mental : capacité mémoire, attention, perception. Critères : Utilité (fonctionnel) + Utilisabilité (apprentissage et usage).'},
+  ]},
+  {id:'p3',title:'Bases de Projet & Conception',items:[
+    {h:'5 types de veille',p:'Concurrentielle (concurrents) · Commerciale (clients/tendances) · Réglementaire (lois) · E-réputation (avis) · Technologique (innovations)'},
+    {h:'Persona',p:'Représentation FICTIVE basée sur données réelles. Composants : données générales · objectifs · contraintes · motivations · freins'},
+    {h:'Journey Map vs User Flow vs Task Flow',p:'Journey Map = expérience vécue. User Flow = tous les chemins (navigation libre). Task Flow = chemin idéal d\'une tâche (un scénario).'},
+    {h:'Étapes de prototypage',p:'1. Sketch (croquis global) → 2. Wireframe/Mockup (détaillé sans design) → 3. Prototype (interactif incomplet)'},
+    {h:'Zoning vs Wireframe',p:'Zoning = blocs grossiers APRÈS arborescence. Wireframe = détaillé, sans couleurs ni design, suite du Zoning.'},
+    {h:'Lo-fi vs Hi-fi',p:'Lo-fi : simple, rapide, dessin à la main. Hi-fi : proche du produit final, interactif.'},
+    {h:'Démarches de conception',p:'Itérative : toute l\'interface, cycles répétés. Incrémentale : zone par zone. Mixte : itération dans l\'incrément.'},
+    {h:'HTA – Enchaînements',p:'Séquence · Parallèle (non ordonné, 1 seule à la fois) · Simultané (plusieurs à la fois) · Boucle · Alternative stricte (XOR) · Alternative non stricte (OR)'},
+    {h:'Impact agencement → interface',p:'Séquentiel→successif. Alternatif→choix puis disparition. Parallèle→champs simultanés. Itératif→écran reste affiché.'},
+    {h:'Approche Agile',p:'Communication · Partage · Entraide · Auto-discipline · Autogestion. Opposé à l\'approche classique (livraison finale uniquement).'},
+    {h:'Oculométrie & Parcours',p:'Eye Tracking analyse le regard. 3 parcours typiques : Z, F, et sélectif (mots clés).'},
+    {h:'Schéma type d\'écran',p:'Commandes (haut), Sélection (côté), Travail (centre), Messages (bas). Architecture: série (étapes) vs Workbench (tout visible).'},
+    {h:'Architecture Fenêtres',p:'1 fenêtre : gérer espace, densité, animations. Plusieurs : répartir info, User Flow, Série vs Workbench.'},
+    {h:'Styles de Design UI',p:'Skeuomorphisme (imite le réel), Flat (minimaliste), Material (Google, règles physiques), Fluent (Microsoft, immersif).'},
+    {h:'Modèle de l\'utilisateur',p:'Définit l\'utilisateur via 3 données : Générales (âge, handicap), Psychologiques, et Liées à l\'app (expert, usage quotidien).'},
+    {h:'Symboles HTA',p:'└┬┘ Séquence | ├┼┤ Parallèle | ⌒ Boucle | ∨ Alternative stricte (exclusif) | ∨∨ Alternative non stricte (plusieurs possibles)'},
+    {h:'Agile + UX',p:'Complémentarité. Options d\'intégration : Avant sprints (décalage tech), Pendant (idéal mais difficile), Après (perte de temps). (Inconvénient: temporalité).'},
+    {h:'Agile + UX (Correspondances)',p:'User Story → Storytelling. Personas → Acteur. Storyboard → Étude ergonomique.'},
+  ]},
+  {id:'p4',title:'Design Thinking & Process UX',items:[
+    {h:'5 étapes Design Thinking',p:'Empathie → Définition → Idéation → Prototyper → Test. CYCLIQUES, pas linéaires.'},
+    {h:'3 critères de validation d\'idée',p:'Désirabilité (attentes clients) + Faisabilité (réalisable) + Viabilité (rentable) → Design d\'Innovation.'},
+    {h:'Business vs Design Thinking',p:'Business : logique, déductif, preuves, décision rapide. Design : intuitif, abductif, What if?, plusieurs possibilités.'},
+    {h:'6 étapes Process UX',p:'1. Planification 2. Exploration 3. Idéation 4. Test d\'apprentissage 5. Génération 6. Évaluation'},
+    {h:'Méthodes d\'exploration',p:'Interview (individuel, <1h, semi-directif) · Questionnaire · Sonde culturelle (kit) · Observation · Personas · Carte d\'empathie'},
+    {h:'Carte d\'empathie',p:'Dit · Pense · Voit · Entend · Fait · Ressent'},
+    {h:'Méthodes d\'idéation',p:'User stories · Brainstorming (petits groupes, <1h) · Focus group (7-10 pers, 1-2h) · Tri par cartes · Story mapping · Scénario d\'usage'},
+    {h:'Brainstorming vs Focus Group',p:'Brainstorming : générer des idées, petit groupe, profils différents. Focus group : comprendre opinions, 7-10 pers.'},
+    {h:'Évaluation des solutions',p:'Inspection cognitive (expert se met à la place user). Audit ergonomique (experts UX/ergonomie).'},
+    {h:'Gamification',p:'Utiliser des mécanismes du jeu pour motiver les utilisateurs.'},
+  ]},
+];
 
-function startOrResumeQuiz() {
-  if (loadState() && cur < QS.length) {
-    // Resume
-    buildNodes();
-    show('quiz');
-    renderQ();
-  } else {
-    // Start fresh
-    startQuiz();
-  }
-}
-
-function startQuiz() {
-  clearState();
-  cur=0; score=0; correct=0; wrong=0; skipped=0;
-  dotState=Array(10).fill('');
-  buildNodes();
-  show('quiz');
-  renderQ();
-}
-
-function buildNodes() {
-  const wrap = document.getElementById('prog-nodes');
-  wrap.innerHTML = '';
-  QS.forEach((_,i) => {
-    const d = document.createElement('div');
-    d.className='pnode'; d.id='pn'+i;
-    wrap.appendChild(d);
-  });
-}
-
-function syncNodes() {
-  QS.forEach((_,i) => {
-    const d = document.getElementById('pn'+i);
-    if (!d) return;
-    d.className = 'pnode';
-    if (dotState[i]==='ok') d.classList.add('ok');
-    else if (dotState[i]==='no') d.classList.add('no');
-    else if (dotState[i]==='skip') d.classList.add('skip');
-    if (i===cur) d.classList.add('cur');
-  });
-}
-
-function renderQ() {
-  answered = false;
-  const q = QS[cur];
-  document.getElementById('q-id').textContent = `Q.${String(cur+1).padStart(2,'0')} / ${QS.length}`;
-  document.getElementById('q-sec').textContent = q.sec;
-  document.getElementById('q-txt').textContent = q.q;
-  document.getElementById('expl').style.display = 'none';
-  document.getElementById('next-row').style.display = 'none';
-
-  // Restart panel animation
-  const panel = document.getElementById('q-panel');
-  panel.style.animation = 'none'; panel.offsetHeight;
-  panel.style.animation = '';
+function renderCS(){
+  const idx = document.getElementById('cs-index');
+  idx.innerHTML = CS_DATA.map(s=>`<a href="#cs-${s.id}">${s.title}</a>`).join('');
   
-  // Scroll to top of panel for new question
-  panel.scrollTop = 0;
-
-  const grid = document.getElementById('opts-grid');
-  grid.innerHTML = '';
-  q.opts.forEach((opt,i) => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.setAttribute('data-lbl', LBLS[i]);
-    btn.textContent = opt;
-    btn.onclick = () => pick(i);
-    grid.appendChild(btn);
+  let html='';
+  CS_DATA.forEach(s=>{
+    html+=`<div class="cs-section" id="cs-${s.id}">
+      <h2 class="collapsible-hdr open" onclick="toggleCS(this)">${s.title} <span class="arrow">▼</span></h2>
+      <div class="collapsible-body open">
+        <div class="cs-grid">`;
+    s.items.forEach(item=>{
+      html+=`<div class="cs-card">
+        <h4>${item.h} <button class="copy-btn" onclick="copyText(\`${item.p.replace(/`/g,"'")}\`)">copy</button></h4>
+        <p>${item.p}</p>
+      </div>`;
+    });
+    html+=`</div></div></div>`;
   });
-
-  syncNodes();
-  startTimer();
-  saveState(); // Save state at the start of each question
-}
-
-function startTimer() {
-  clearInterval(tInt);
-  tLeft = TIME;
-  updTimer();
-  tInt = setInterval(() => {
-    tLeft--;
-    updTimer();
-    if (tLeft <= 0) { clearInterval(tInt); if (!answered) timeUp(); }
-  }, 1000);
-}
-
-function updTimer() {
-  const pct = (tLeft / TIME) * 100;
-  const fill = document.getElementById('t-fill');
-  const num  = document.getElementById('t-num');
-  fill.style.width = pct + '%';
-  if (tLeft <= 10) {
-    fill.style.background = 'var(--red)';
-    fill.style.boxShadow = '0 0 10px var(--red)';
-    num.style.color = 'var(--red)';
-  } else if (tLeft <= 20) {
-    fill.style.background = 'var(--gold)';
-    fill.style.boxShadow = '0 0 10px var(--gold)';
-    num.style.color = 'var(--gold)';
-  } else {
-    fill.style.background = 'var(--cyan)';
-    fill.style.boxShadow = '0 0 10px var(--cyan)';
-    num.style.color = 'var(--cyan)';
-  }
-  num.textContent = tLeft;
-}
-
-function timeUp() {
-  answered = true; skipped++;
-  dotState[cur] = 'skip';
-  const q = QS[cur];
-  const btns = document.querySelectorAll('.opt-btn');
-  btns[q.c].classList.add('correct');
-  btns.forEach(b => b.disabled = true);
-  showExpl('⏱ TIME EXPIRED — ' + q.ex);
-  syncNodes();
-  saveState();
-}
-
-function pick(idx) {
-  if (answered) return;
-  answered = true;
-  clearInterval(tInt);
-  const q = QS[cur];
-  const btns = document.querySelectorAll('.opt-btn');
-  btns.forEach(b => b.disabled = true);
-  if (idx === q.c) {
-    btns[idx].classList.add('correct');
-    score++; correct++;
-    dotState[cur] = 'ok';
-    showExpl('✓ CONFIRMED — ' + q.ex);
-  } else {
-    btns[idx].classList.add('wrong');
-    btns[q.c].classList.add('correct');
-    wrong++;
-    dotState[cur] = 'no';
-    showExpl('✗ NEGATIVE — ' + q.ex);
-  }
-  syncNodes();
-  saveState();
-}
-
-function showExpl(html) {
-  const el = document.getElementById('expl');
-  el.innerHTML = `<span class="expl-label">// SYSTEM ANALYSIS //</span>${html}`;
-  el.style.display = 'block';
-  document.getElementById('next-row').style.display = 'flex';
   
-  // Auto-scroll slightly so the next button is obvious, even though it's sticky
-  const panel = document.getElementById('q-panel');
-  setTimeout(() => {
-    panel.scrollTo({ top: panel.scrollHeight, behavior: 'smooth' });
-  }, 100);
+  // Add formula table
+  html+=`<div class="cs-section"><h2>Formules & Seuils</h2><div><table>
+    <tr><th>Concept</th><th>Valeur / Formule</th><th>Usage</th></tr>
+    <tr><td>Loi de Fitts</td><td><code>T = I·log₂(2D/L)</code></td><td>Temps pour atteindre une cible</td></tr>
+    <tr><td>MCT</td><td><code>7±3 items · 15-30 sec</code></td><td>Limite de la mémoire à court terme</td></tr>
+    <tr><td>Système moteur</td><td><code>70 ms / cycle</code></td><td>Vitesse des micro-mouvements</td></tr>
+    <tr><td>Règle des 2 secondes</td><td><code>≤ 2 sec</code></td><td>Temps de réponse système max</td></tr>
+    <tr><td>Règle des 3 clics</td><td><code>≤ 3 clics</code></td><td>Accessibilité de l'information</td></tr>
+    <tr><td>Brainstorming</td><td><code>&lt; 1h · petit groupe</code></td><td>Génération d'idées</td></tr>
+    <tr><td>Focus group</td><td><code>7-10 pers · 1-2h</code></td><td>Discussion et opinions</td></tr>
+    <tr><td>Interview UX</td><td><code>individuel · &lt; 1h</code></td><td>Besoins/problèmes utilisateur</td></tr>
+  </table></div></div>`;
+  
+  document.getElementById('cheatsheet-inner').innerHTML=html;
 }
 
-function nextQ() {
-  cur++;
-  if (cur >= QS.length) showResults();
-  else renderQ();
+function toggleCS(hdr){
+  hdr.classList.toggle('open');
+  hdr.nextElementSibling.classList.toggle('open');
 }
 
-function showResults() {
-  clearState(); // Wipe state once finished
-  show('results');
-  const pct = score / QS.length;
-  document.getElementById('sc-num').textContent = score;
-  document.getElementById('s-ok').textContent = correct;
-  document.getElementById('s-no').textContent = wrong;
-  document.getElementById('s-sk').textContent = skipped;
-
-  const arc = document.getElementById('score-arc');
-  const circum = 534;
-  arc.style.strokeDashoffset = circum;
-  setTimeout(() => {
-    arc.style.transition = 'stroke-dashoffset 1.2s cubic-bezier(0.16,1,0.3,1)';
-    arc.style.strokeDashoffset = circum - (pct * circum);
-  }, 300);
-
-  if (pct >= 0.8) { arc.setAttribute('stroke','var(--green)'); arc.parentElement.style.filter='drop-shadow(0 0 12px var(--green))'; }
-  else if (pct >= 0.5) { arc.setAttribute('stroke','var(--cyan)'); }
-  else { arc.setAttribute('stroke','var(--red)'); arc.parentElement.style.filter='drop-shadow(0 0 12px var(--red))'; }
-
-  const verdicts = [
-    [10, "PERFECT SCORE", "Outstanding. You absorbed every concept from the presentation. Full system comprehension confirmed."],
-    [8,  "EXCELLENT OUTPUT", "Strong grasp across all three sections — framework, statistics, legal, and future technology."],
-    [6,  "SATISFACTORY RESULT", "Solid understanding. Review the sections where you dropped — especially statistics and legal frameworks."],
-    [4,  "PARTIAL ACQUISITION", "You caught the main ideas but key details need reinforcement. Revisit the slides and retry."],
-    [0,  "REBOOT REQUIRED", "The material covers substantial ground. Return to the presentation, then reinitialize the quiz."]
-  ];
-
-  const [,t,b] = verdicts.find(([min]) => score >= min);
-  document.getElementById('verd-title').textContent = t;
-  document.getElementById('verd-body').textContent = b;
+function copyText(txt){
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=event.target;btn.textContent='✓';setTimeout(()=>btn.textContent='copy',1500);
+  });
 }
 
-function restart() { startQuiz(); }
+// ============================================================
+// TRAPS
+// ============================================================
+let currentTrapFilter = 'all';
+function renderTraps(){
+  let pool=TRAPS;
+  if(currentTrapFilter!=='all') pool=pool.filter(t=>t.cat===currentTrapFilter);
+  
+  let html='';
+  pool.forEach(t=>{
+    const catLabels={'confusion':'Confusion fréquente','erreur':'Erreur classique','exception':'Exception importante','limite':'Cas limite'};
+    const sevColors={'high':'var(--danger)','med':'var(--warning)','low':'var(--secondary)'};
+    html+=`<div class="trap-card">
+      <div class="trap-hdr">
+        <span class="sev ${t.sev}">${t.sev==='high'?'CRITIQUE':t.sev==='med'?'IMPORTANT':'NOTE'}</span>
+        <span class="tag" style="background:#1a1a30;color:#a5b4fc">${catLabels[t.cat]}</span>
+        <span class="tag ch">${CHAPTERS[t.chapter]}</span>
+      </div>
+      <div class="wrong">On pense : "${t.wrong}"</div>
+      <div class="correct-t">Correct : ${t.correct}</div>
+      <div class="why">📖 Pourquoi ce piège : ${t.why}</div>
+    </div>`;
+  });
+  document.getElementById('traps-inner').innerHTML=html||'<p style="color:var(--muted)">Aucun piège dans cette catégorie.</p>';
+}
+
+function filterTrap(cat,btn){
+  currentTrapFilter=cat;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTraps();
+}
+
+// ============================================================
+// GLOBAL SEARCH
+// ============================================================
+function globalSearch(query){
+  const box=document.getElementById('search-results');
+  if(!query||query.length<2){box.style.display='none';return;}
+  const q=query.toLowerCase();
+  const results=[];
+  
+  QUESTIONS.forEach(item=>{
+    if(item.q.toLowerCase().includes(q)||item.expl.toLowerCase().includes(q)){
+      results.push({type:'QCM',text:item.q,chapter:CHAPTERS[item.chapter]});
+    }
+  });
+  FLASHCARDS.forEach(item=>{
+    if(item.front.toLowerCase().includes(q)||item.back.toLowerCase().includes(q)){
+      results.push({type:'Flashcard',text:item.front,chapter:CHAPTERS[item.chapter]});
+    }
+  });
+  TRAPS.forEach(item=>{
+    if(item.wrong.toLowerCase().includes(q)||item.correct.toLowerCase().includes(q)){
+      results.push({type:'Piège',text:item.wrong,chapter:CHAPTERS[item.chapter]});
+    }
+  });
+  
+  const top=results.slice(0,12);
+  if(!top.length){box.innerHTML='<div class="sr-item"><div class="sr-q" style="color:var(--muted)">Aucun résultat.</div></div>';box.style.display='block';return;}
+  
+  const hl=t=>t.replace(new RegExp(query,'gi'),m=>`<mark>${m}</mark>`);
+  box.innerHTML=top.map(r=>`<div class="sr-item"><div class="sr-tag">${r.type} · ${r.chapter}</div><div class="sr-q">${hl(r.text.substring(0,80))}...</div></div>`).join('');
+  box.style.display='block';
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.search-wrap')) document.getElementById('search-results').style.display='none';
+});
+
+// ============================================================
+// INIT
+// ============================================================
+buildPool();
+renderQCM();
+renderDashboard();
+renderFC();
+renderTraps();
 </script>
 </body>
 </html>

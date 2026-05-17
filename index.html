@@ -156,7 +156,7 @@ textarea.code-area:focus{outline:none;border-color:var(--accent)}
 .hamburger{display:none;background:none;border:none;color:var(--txt);font-size:22px;cursor:pointer;padding:0 14px;height:48px}
 .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:950;display:none;backdrop-filter:blur(2px)}
 .sidebar-overlay.open{display:block}
-@media(max-width:850px){nav{flex-wrap:wrap;padding:4px 0}.hamburger{display:block}.nav-brand{border-right:none;padding-left:0;flex:1}.nav-right{width:100%;border-left:none;border-top:1px solid var(--border);padding:8px 16px;justify-content:space-between;margin-top:4px;flex-wrap:wrap;gap:8px}.kbd-btn{display:none}.nav-tabs{position:fixed;top:0;left:-260px;width:260px;height:100vh;background:var(--panel);border-right:1px solid var(--border);border-top:none;flex-direction:column;z-index:1000;transition:left .3s cubic-bezier(.4,0,.2,1);padding-top:20px;overflow-y:auto;align-items:stretch}.nav-tabs.open{left:0}.tab-btn{width:100%;text-align:left;border-bottom:none;border-left:3px solid transparent;padding:15px 20px;height:auto;font-size:14px}.tab-btn.active{border-bottom:none;border-left-color:var(--accent);background:rgba(139,92,246,.07)}.flashcard{height:240px}.fc-txt{font-size:13px}main{padding:14px 10px}#search-box{flex:1;max-width:none;order:3;margin-left:0}#streak-counter{order:1}#session-clock{order:2}.qn-btn{width:38px;height:38px;font-size:14px}.f-btn{padding:8px 16px;font-size:13px}.btn{min-height:40px}.q-player{position:static;order:4;width:100%;margin-top:4px;justify-content:space-between;background:linear-gradient(90deg, rgba(139,92,246,0.15) 0%, rgba(139,92,246,0.03) 100%);border:1px solid rgba(139,92,246,0.4);border-radius:10px;padding:8px 14px;box-shadow:inset 0 0 15px rgba(139,92,246,0.05)}.q-select{flex:1;font-size:14px;width:auto}.q-vol-wrapper{display:flex}.q-btn{width:32px;height:32px;font-size:16px;background:rgba(139,92,246,0.15)}.yd-credit{display:none}.toast{bottom:90px}}
+@media(max-width:850px){nav{flex-wrap:wrap;padding:4px 0}.hamburger{display:block}.nav-brand{border-right:none;padding-left:0;flex:1}.nav-right{width:100%;border-left:none;border-top:1px solid var(--border);padding:8px 16px;justify-content:space-between;margin-top:4px;flex-wrap:wrap;gap:8px}.kbd-btn{display:none}.nav-tabs{position:fixed;top:0;left:-260px;width:260px;height:100vh;background:var(--panel);border-right:1px solid var(--border);border-top:none;flex-direction:column;z-index:1000;transition:left .3s cubic-bezier(.4,0,.2,1);padding-top:20px;overflow-y:auto;align-items:stretch}.nav-tabs.open{left:0}.tab-btn{width:100%;text-align:left;border-bottom:none;border-left:3px solid transparent;padding:15px 20px;height:auto;font-size:14px}.tab-btn.active{border-bottom:none;border-left-color:var(--accent);background:rgba(139,92,246,.07)}.flashcard{height:240px}.fc-txt{font-size:13px}main{padding:14px 10px}#search-box{flex:1;max-width:none;order:3;margin-left:0}#streak-counter{order:1}#session-clock{order:2}.qn-btn{width:38px;height:38px;font-size:14px}.f-btn{padding:8px 16px;font-size:13px}.btn{min-height:40px}.yd-credit{display:none}.toast{bottom:90px}}
 @media print{nav,#scroll-prog,.f-btn,.filter-bar,.btn,.fc-status,.q-nav,.coll-btn,textarea{display:none!important}body{background:#fff;color:#000}.cc{break-inside:avoid;border:1px solid #ccc}.cc-h{background:#f3f4f6}pre,.cs,code{background:#f9fafb;border:1px solid #ddd}}
 .empty{text-align:center;padding:60px 24px;background:rgba(139,92,246,.03);border:1px solid rgba(139,92,246,.1);border-radius:16px;margin-top:16px;animation:fi .22s ease}
 .empty-icon{font-size:48px;display:block;margin-bottom:16px;line-height:1;opacity:0.8}
@@ -180,22 +180,7 @@ textarea.code-area:focus{outline:none;border-color:var(--accent)}
 .kb-table td:first-child{color:var(--txt2)}
 .kb-table td:last-child{text-align:right;white-space:nowrap}
 kbd{display:inline-block;background:var(--bg);border:1px solid var(--border);border-bottom-width:2px;border-radius:4px;padding:1px 6px;font-family:var(--mono);font-size:11px;color:var(--txt2)}
-.q-player { display:flex; align-items:center; gap:4px; background:rgba(139,92,246,0.06); border:1px solid rgba(139,92,246,0.2); border-radius:30px; padding:3px 8px; font-size:12px; position:relative; overflow:hidden; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); }
-.q-player:hover { border-color:var(--accent); box-shadow:0 0 12px rgba(139,92,246,0.15); background:rgba(139,92,246,0.08); }
-.q-icon { color:var(--accent); font-size:14px; }
-.q-icon.playing { animation: pulse 2s infinite ease-in-out; }
-@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
-.q-select { background:transparent; border:none; color:var(--txt); font-family:var(--font); font-size:12px; font-weight:600; outline:none; width:95px; cursor:pointer; text-overflow:ellipsis; padding:2px 0; }
-.q-select option { background:#18181b; color:#fafafa; font-size:13px; padding:6px; font-weight:500; }
-.q-btn { background:none; border:none; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; transition:all 0.2s; }
-.q-btn:hover { background:rgba(255,255,255,0.08); }
-.q-btn.play { color:var(--ok); }
-.q-btn.pause { color:var(--warn); }
-.q-vol-wrapper { display:flex; align-items:center; gap:3px; border-left:1px solid var(--border); padding-left:5px; margin-left:2px; }
-.q-vol-icon { font-size:12px; cursor:pointer; transition:color 0.2s; color:var(--txt2); }
-.q-vol-icon:hover { color:var(--txt); }
-.q-vol-slider { width: 30px; accent-color: var(--accent); cursor: pointer; height: 3px; }
-.q-progress { position:absolute; bottom:0; left:0; height:2px; background:var(--accent); width:0%; transition:width 0.1s linear; box-shadow: 0 0 5px var(--accent); }
+
 </style>
 </head>
 <body>
@@ -211,18 +196,7 @@ kbd{display:inline-block;background:var(--bg);border:1px solid var(--border);bor
     <button class="tab-btn" data-tab="traps">④ Pièges d'exam</button>
   </div>
   <div class="nav-right" style="gap:8px">
-    <div class="q-player" id="quran-player">
-      <div class="q-progress" id="quran-progress"></div>
-      <span class="q-icon" id="quran-icon" title="Abdul Baset Abd al-Samad (Murattal)">🎧</span>
-      <select class="q-select" id="quran-surah"></select>
-      <button class="q-btn play" id="quran-play" title="Jouer">▶</button>
-      <button class="q-btn pause" id="quran-pause" title="Pause" style="display:none">⏸</button>
-      <div class="q-vol-wrapper">
-        <span class="q-vol-icon" id="quran-mute" title="Volume">🔊</span>
-        <input type="range" class="q-vol-slider" id="quran-vol" min="0" max="1" step="0.05" value="0.2" title="Ajuster le volume">
-      </div>
-      <audio id="quran-audio" style="display:none" preload="none"></audio>
-    </div>
+
     <div id="streak-counter" title="Série de révision (jours consécutifs)" style="font-size:13px;font-weight:700;color:var(--warn);display:flex;align-items:center;gap:4px">
       <span style="font-size:16px">🔥</span> <span id="streak-val">0</span>
     </div>
@@ -956,91 +930,11 @@ function showShortcuts(){
   </table>`);
 }
 
-/* === QURAN PLAYER === */
-const SURAHS = ["Al-Fatihah","Al-Baqarah","Ali 'Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-'Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Ad-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadila","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","'Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Lail","Ad-Duha","Ash-Sharh","At-Tin","Al-'Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-'Adiyat","Al-Qari'ah","At-Takathur","Al-'Asr","Al-Humazah","Al-Fil","Quraish","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
-function initQuran(){
-  const sel=document.getElementById('quran-surah');
-  if(!sel) return;
-  SURAHS.forEach((s,i)=>{
-    const opt=document.createElement('option');
-    opt.value=String(i+1).padStart(3,'0');
-    opt.textContent=`${String(i+1).padStart(3,'0')} - ${s}`;
-    sel.appendChild(opt);
-  });
-  const aud=document.getElementById('quran-audio');
-  const btnP=document.getElementById('quran-play');
-  const btnPa=document.getElementById('quran-pause');
-  const icon=document.getElementById('quran-icon');
-  const prog=document.getElementById('quran-progress');
-  const volSl=document.getElementById('quran-vol');
-  const btnMute=document.getElementById('quran-mute');
-  
-  aud.volume = volSl.value;
-  let cur='';
-  
-  function playQ(){
-    if(cur!==sel.value){cur=sel.value;aud.src=`https://server7.mp3quran.net/basit/${cur}.mp3`;}
-    aud.play();
-    btnP.style.display='none';
-    btnPa.style.display='flex';
-    icon.classList.add('playing');
-  }
-  
-  function pauseQ(){
-    aud.pause();
-    btnPa.style.display='none';
-    btnP.style.display='flex';
-    icon.classList.remove('playing');
-  }
-  
-  btnP.addEventListener('click',playQ);
-  btnPa.addEventListener('click',pauseQ);
-  sel.addEventListener('change',()=>{if(!aud.paused) playQ();});
-  
-  aud.addEventListener('ended',()=>{
-    if(sel.selectedIndex<sel.options.length-1){sel.selectedIndex++;playQ();}else{pauseQ();}
-  });
-  
-  aud.addEventListener('error', ()=>{
-    pauseQ(); console.error("Erreur audio");
-  });
-  
-  aud.addEventListener('timeupdate', ()=>{
-    if(aud.duration){
-      prog.style.width = ((aud.currentTime / aud.duration) * 100) + '%';
-    }
-  });
-  
-  function updateVolIcon() {
-    if(aud.volume === 0) btnMute.textContent = '🔇';
-    else if(aud.volume < 0.5) btnMute.textContent = '🔉';
-    else btnMute.textContent = '🔊';
-  }
-  
-  volSl.addEventListener('input', (e)=>{
-    aud.volume = e.target.value;
-    updateVolIcon();
-  });
-  
-  let lastVol = 0.2;
-  btnMute.addEventListener('click', ()=>{
-    if(aud.volume > 0) {
-      lastVol = aud.volume;
-      aud.volume = 0;
-      volSl.value = 0;
-    } else {
-      aud.volume = lastVol || 0.2;
-      volSl.value = aud.volume;
-    }
-    updateVolIcon();
-  });
-}
 
 /* === INIT === */
 window.onload=()=>{
   initTabs();
   renderQCM();
-  initQuran();
   document.getElementById('streak-val').textContent=ST.streak;
 };
 </script>
